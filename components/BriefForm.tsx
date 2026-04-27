@@ -43,7 +43,11 @@ const errorClass = "text-red-500 text-sm mt-1";
 
 export default function BriefForm() {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(1);
+  const initialStep = typeof window !== "undefined" 
+    ? parseInt(localStorage.getItem("brief-form-data")?.match(/"currentStep":(\d+)/)?.[1] || "1", 10)
+    : 1;
+
+  const [currentStep, setCurrentStep] = useState(() => Math.min(Math.max(initialStep, 1), 6));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -121,7 +125,7 @@ export default function BriefForm() {
       };
       localStorage.setItem("brief-form-data", JSON.stringify(dataToSave));
     }
-  }, [watchedValues, currentStep, setValue]);
+  }, [watchedValues, currentStep]);
 
   const handleNext = async () => {
     const stepFields = requiredFieldsByStep[currentStep] || [];
