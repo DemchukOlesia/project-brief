@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { requiredFieldsByStep } from "@/lib/validation";
 
 interface Brief {
   id: string;
@@ -176,13 +177,15 @@ export default function BriefDetailPage() {
           <div className="space-y-4">
             {data.fields.map((field) => {
               const value = brief[field as keyof Brief];
+              const isRequired = requiredFieldsByStep[parseInt(step)]?.includes(field as any);
               if (!value) return null;
               return (
-                <div key={field}>
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">
+                <div key={field} className="mb-4">
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
                     {fieldLabels[field] || field}
-                  </h3>
-                  <p className="text-gray-900 whitespace-pre-wrap">{value}</p>
+                    {isRequired && <span className="text-red-500 ml-1">*</span>}
+                  </label>
+                  <p className="text-gray-900 bg-gray-50 rounded-lg p-3 whitespace-pre-wrap">{value}</p>
                 </div>
               );
             })}
