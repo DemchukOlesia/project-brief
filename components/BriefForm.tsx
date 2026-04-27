@@ -55,6 +55,7 @@ export default function BriefForm() {
     register,
     handleSubmit,
     watch,
+    setValue,
   } = useForm<FormData>({
     defaultValues: {
       companyName: "",
@@ -95,25 +96,30 @@ export default function BriefForm() {
         if (parsed.currentStep) {
           setCurrentStep(parsed.currentStep);
         }
+        Object.keys(parsed).forEach((key) => {
+          if (key !== 'currentStep' && parsed[key]) {
+            setValue(key, parsed[key]);
+          }
+        });
       } catch (e) {
         console.error("Failed to parse saved form data", e);
       }
     }
-  }, []);
+  }, [setValue]);
 
   const watchedContactMethod = watch("contactMethod");
   const showMessengerField = watchedContactMethod === "telegram" || watchedContactMethod === "viber";
   const watchedValues = watch();
 
   useEffect(() => {
-    if (typeof window !== "undefined" && Object.keys(watchedValues).length > 0) {
+    if (typeof window !== "undefined") {
       const dataToSave = {
         ...watchedValues,
         currentStep,
       };
       localStorage.setItem("brief-form-data", JSON.stringify(dataToSave));
     }
-  }, [watchedValues, currentStep]);
+  }, [watchedValues, currentStep, setValue]);
 
   const handleNext = async () => {
     setCurrentStep((prev) => Math.min(prev + 1, steps.length));
