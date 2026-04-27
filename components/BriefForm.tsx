@@ -206,7 +206,8 @@ export default function BriefForm() {
           {steps.map((step) => (
             <div
               key={step.id}
-              className={`text-xs font-medium ${
+              onClick={() => setCurrentStep(step.id)}
+              className={`text-xs font-medium cursor-pointer hover:opacity-80 ${
                 step.id === currentStep
                   ? "text-blue-600"
                   : step.id < currentStep
