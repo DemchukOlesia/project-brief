@@ -2,20 +2,18 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { briefSchema, requiredFieldsByStep, BriefFormData } from "@/lib/validation";
 
 const steps = [
-  { id: 1, name: "Контакти" },
-  { id: 2, name: "Проєкт" },
-  { id: 3, name: "Функціонал" },
-  { id: 4, name: "Дизайн" },
-  { id: 5, name: "Обмеження" },
-  { id: 6, name: "Додатково" },
+  { id: 1, name: "Контакти", requiredNote: "* Обов'язкові поля" },
+  { id: 2, name: "Проєкт", requiredNote: "* Обов'язкові поля" },
+  { id: 3, name: "Функціонал", requiredNote: "* Обов'язкові поля" },
+  { id: 4, name: "Дизайн", requiredNote: "" },
+  { id: 5, name: "Обмеження", requiredNote: "* Обов'язкові поля" },
+  { id: 6, name: "Додатково", requiredNote: "" },
 ];
-
-interface FormData {
-  [key: string]: any;
-}
 
 const projectTypes = [
   { value: "website", label: "Веб-сайт" },
@@ -49,6 +47,7 @@ export default function BriefForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [stepTouched, setStepTouched] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -56,7 +55,9 @@ export default function BriefForm() {
     handleSubmit,
     watch,
     setValue,
-  } = useForm<FormData>({
+    formState: { errors },
+  } = useForm<BriefFormData>({
+    resolver: zodResolver(briefSchema),
     defaultValues: {
       companyName: "",
       contactName: "",
@@ -98,7 +99,7 @@ export default function BriefForm() {
         }
         Object.keys(parsed).forEach((key) => {
           if (key !== 'currentStep' && parsed[key]) {
-            setValue(key, parsed[key]);
+            setValue(key as keyof BriefFormData, parsed[key]);
           }
         });
       } catch (e) {
@@ -122,6 +123,17 @@ export default function BriefForm() {
   }, [watchedValues, currentStep, setValue]);
 
   const handleNext = async () => {
+    const stepFields = requiredFieldsByStep[currentStep] || [];
+    const result = await briefSchema.safeParse(watchedValues);
+    const stepErrors = stepFields.filter(field => {
+      const value = watchedValues[field as keyof typeof watchedValues];
+      return !value || (typeof value === 'string' && !value.trim());
+    });
+    
+    if (stepErrors.length > 0) {
+      setStepTouched(stepFields);
+      return;
+    }
     setCurrentStep((prev) => Math.min(prev + 1, steps.length));
   };
 
@@ -217,6 +229,9 @@ export default function BriefForm() {
         </div>
         <p className="text-center mt-3 text-sm text-gray-500">
           Крок {currentStep} з {steps.length}: {steps[currentStep - 1].name}
+          {steps[currentStep - 1].requiredNote && (
+            <span className="ml-2 text-red-500">{steps[currentStep - 1].requiredNote}</span>
+          )}
         </p>
       </div>
 
@@ -226,12 +241,19 @@ export default function BriefForm() {
             <h2 className="text-xl font-semibold text-gray-900">Контактна інформація</h2>
             <div className="grid md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <label className={labelClass}>Назва компанії *</label>
+                <label className={labelClass}>
+                  Назва компанії <span className="text-red-500">*</span>
+                </label>
                 <input
                   {...register("companyName")}
                   placeholder="ТОВ &quot;Компанія&quot;"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+                  className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
+                    stepTouched.includes("companyName") && errors.companyName ? "border-red-500" : "border-gray-200"
+                  }`}
                 />
+                {stepTouched.includes("companyName") && errors.companyName && (
+                  <p className="text-red-500 text-sm mt-1">{errors.companyName.message as string}</p>
+                )}
               </div>
               <div className="md:col-span-2">
                 <label className={labelClass}>ПІБ контактної особи *</label>
