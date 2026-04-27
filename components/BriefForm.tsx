@@ -283,8 +283,13 @@ export default function BriefForm() {
                   {...register("phone")}
                   type="tel"
                   placeholder="+380XXXXXXXXX"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+                  className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
+                    errors.phone ? "border-red-500" : "border-gray-200"
+                  }`}
                 />
+                {errors.phone && (
+                  <p className="text-red-500 text-sm mt-1">{errors.phone.message as string}</p>
+                )}
               </div>
               <div>
                 <label className={labelClass}>Email <span className="text-red-500">*</span></label>
@@ -292,16 +297,26 @@ export default function BriefForm() {
                   {...register("email")}
                   type="email"
                   placeholder="email@company.com"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+                  className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
+                    errors.email ? "border-red-500" : "border-gray-200"
+                  }`}
                 />
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-1">{errors.email.message as string}</p>
+                )}
               </div>
               <div>
                 <label className={labelClass}>Зручний спосіб зв&apos;язку <span className="text-red-500">*</span></label>
                 <input
                   {...register("contactMethod")}
                   placeholder="Наприклад: телефон, Telegram, email"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+                  className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
+                    errors.contactMethod ? "border-red-500" : "border-gray-200"
+                  }`}
                 />
+                {errors.contactMethod && (
+                  <p className="text-red-500 text-sm mt-1">{errors.contactMethod.message as string}</p>
+                )}
               </div>
               <div>
                 <label className={labelClass}>Зручний час для зв&apos;язку</label>
@@ -339,9 +354,13 @@ export default function BriefForm() {
                 {...register("features")}
                 rows={4}
                 placeholder="Що це за продукт, для чого він створюється та в чому його суть"
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical"
+                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical ${
+                  errors.features ? "border-red-500" : "border-gray-200"
+                }`}
               />
-              
+              {errors.features && (
+                <p className="text-red-500 text-sm mt-1">{errors.features.message as string}</p>
+              )}
             </div>
 
             <div>
@@ -350,9 +369,13 @@ export default function BriefForm() {
                 {...register("problem")}
                 rows={4}
                 placeholder="Яка потреба або проблема існує зараз і як ваш продукт її вирішує"
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical"
+                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical ${
+                  errors.problem ? "border-red-500" : "border-gray-200"
+                }`}
               />
-              
+              {errors.problem && (
+                <p className="text-red-500 text-sm mt-1">{errors.problem.message as string}</p>
+              )}
             </div>
 
             <div>
@@ -361,9 +384,13 @@ export default function BriefForm() {
                 {...register("goal")}
                 rows={4}
                 placeholder="Якого результату ви хочете досягти (наприклад: прибуток, автоматизація, зручність для користувачів)"
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical"
+                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical ${
+                  errors.goal ? "border-red-500" : "border-gray-200"
+                }`}
               />
-              
+              {errors.goal && (
+                <p className="text-red-500 text-sm mt-1">{errors.goal.message as string}</p>
+              )}
             </div>
 
             <div>
@@ -448,9 +475,13 @@ export default function BriefForm() {
                 {...register("functionalModules")}
                 rows={4}
                 placeholder="Наприклад: реєстрація, каталог, профіль, замовлення, аналітика"
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical"
+                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical ${
+                  errors.functionalModules ? "border-red-500" : "border-gray-200"
+                }`}
               />
-              
+              {errors.functionalModules && (
+                <p className="text-red-500 text-sm mt-1">{errors.functionalModules.message as string}</p>
+              )}
             </div>
 
             <div>
@@ -629,9 +660,13 @@ export default function BriefForm() {
                 {...register("budget")}
                 rows={4}
                 placeholder="Вкажіть бажаний бюджет або діапазон"
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical"
+                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical ${
+                  errors.budget ? "border-red-500" : "border-gray-200"
+                }`}
               />
-              
+              {errors.budget && (
+                <p className="text-red-500 text-sm mt-1">{errors.budget.message as string}</p>
+              )}
             </div>
 
             <div>
@@ -640,9 +675,13 @@ export default function BriefForm() {
                 {...register("deadline")}
                 rows={4}
                 placeholder="Коли ви хочете отримати готовий продукт"
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical"
+                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical ${
+                  errors.deadline ? "border-red-500" : "border-gray-200"
+                }`}
               />
-              
+              {errors.deadline && (
+                <p className="text-red-500 text-sm mt-1">{errors.deadline.message as string}</p>
+              )}
             </div>
 
             <div>
@@ -651,8 +690,13 @@ export default function BriefForm() {
                 {...register("priority")}
                 rows={4}
                 placeholder="Оберіть пріоритет або опишіть баланс між ними"
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical"
+                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical ${
+                  errors.priority ? "border-red-500" : "border-gray-200"
+                }`}
               />
+              {errors.priority && (
+                <p className="text-red-500 text-sm mt-1">{errors.priority.message as string}</p>
+              )}
             </div>
 
             <div>
