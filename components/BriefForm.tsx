@@ -47,7 +47,6 @@ export default function BriefForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [stepTouched, setStepTouched] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -56,6 +55,7 @@ export default function BriefForm() {
     watch,
     setValue,
     reset,
+    trigger,
     formState: { errors },
   } = useForm<BriefFormData>({
     resolver: zodResolver(briefSchema),
@@ -125,14 +125,9 @@ export default function BriefForm() {
 
   const handleNext = async () => {
     const stepFields = requiredFieldsByStep[currentStep] || [];
-    const result = await briefSchema.safeParse(watchedValues);
-    const stepErrors = stepFields.filter(field => {
-      const value = watchedValues[field as keyof typeof watchedValues];
-      return !value || (typeof value === 'string' && !value.trim());
-    });
+    const isValid = await trigger(stepFields as any);
     
-    if (stepErrors.length > 0) {
-      setStepTouched(stepFields);
+    if (!isValid) {
       return;
     }
     setCurrentStep((prev) => Math.min(prev + 1, steps.length));
@@ -250,10 +245,10 @@ export default function BriefForm() {
                   {...register("companyName")}
                   placeholder="ТОВ &quot;Компанія&quot;"
                   className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
-                    stepTouched.includes("companyName") && errors.companyName ? "border-red-500" : "border-gray-200"
+                    errors.companyName ? "border-red-500" : "border-gray-200"
                   }`}
                 />
-                {stepTouched.includes("companyName") && errors.companyName && (
+                {errors.companyName && (
                   <p className="text-red-500 text-sm mt-1">{errors.companyName.message as string}</p>
                 )}
               </div>
@@ -262,8 +257,13 @@ export default function BriefForm() {
                 <input
                   {...register("contactName")}
                   placeholder="Іван Іванов"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+                  className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
+                    errors.contactName ? "border-red-500" : "border-gray-200"
+                  }`}
                 />
+                {errors.contactName && (
+                  <p className="text-red-500 text-sm mt-1">{errors.contactName.message as string}</p>
+                )}
               </div>
               <div>
                 <label className={labelClass}>Номер телефону *</label>
