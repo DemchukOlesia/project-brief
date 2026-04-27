@@ -127,11 +127,26 @@ export default function BriefForm() {
     if (!isValid) {
       return;
     }
-    setCurrentStep((prev) => Math.min(prev + 1, steps.length));
+    const maxCompletedStep = Math.min(currentStep + 1, steps.length);
+    setCurrentStep(maxCompletedStep);
   };
 
   const handlePrev = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleStepClick = async (stepId: number) => {
+    if (stepId < currentStep) {
+      setCurrentStep(stepId);
+      return;
+    }
+    
+    const stepFields = requiredFieldsByStep[currentStep] || [];
+    const isValid = await trigger(stepFields as any);
+    
+    if (isValid && stepId <= currentStep) {
+      setCurrentStep(stepId);
+    }
   };
 
   const onSubmit = async (data: any) => {
@@ -198,7 +213,7 @@ export default function BriefForm() {
           {steps.map((step) => (
             <div
               key={step.id}
-              onClick={() => setCurrentStep(step.id)}
+              onClick={() => handleStepClick(step.id)}
               className={`text-xs font-medium cursor-pointer hover:opacity-80 ${
                 step.id === currentStep
                   ? "text-blue-600"
