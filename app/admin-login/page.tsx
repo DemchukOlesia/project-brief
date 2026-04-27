@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 export default function AdminLoginPage() {
   const [login, setLogin] = useState("");
@@ -85,6 +86,16 @@ export default function AdminLoginPage() {
           >
             {isLoading ? "Вхід..." : "Увійти"}
           </button>
+
+          <div className="flex items-center justify-center gap-4 pt-4">
+            <Link href="/" className="text-sm text-gray-500 hover:text-gray-700 transition-colors">
+              Головна
+            </Link>
+            <span className="text-gray-300">|</span>
+            <Link href="/brief" className="text-sm text-gray-500 hover:text-gray-700 transition-colors">
+              Заповнити бриф
+            </Link>
+          </div>
         </form>
       </div>
     </div>
