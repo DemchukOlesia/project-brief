@@ -87,6 +87,20 @@ export default function BriefForm() {
     },
   });
 
+  useEffect(() => {
+    const savedData = localStorage.getItem("brief-form-data");
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        if (parsed.currentStep) {
+          setCurrentStep(parsed.currentStep);
+        }
+      } catch (e) {
+        console.error("Failed to parse saved form data", e);
+      }
+    }
+  }, []);
+
   const watchedContactMethod = watch("contactMethod");
   const showMessengerField = watchedContactMethod === "telegram" || watchedContactMethod === "viber";
   const watchedValues = watch();
