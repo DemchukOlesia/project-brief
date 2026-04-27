@@ -141,10 +141,14 @@ export default function BriefForm() {
       return;
     }
     
+    if (stepId === currentStep) {
+      return;
+    }
+    
     const stepFields = requiredFieldsByStep[currentStep] || [];
     const isValid = await trigger(stepFields as any);
     
-    if (isValid && stepId <= currentStep) {
+    if (isValid) {
       setCurrentStep(stepId);
     }
   };
