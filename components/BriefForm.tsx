@@ -55,6 +55,7 @@ export default function BriefForm() {
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<BriefFormData>({
     resolver: zodResolver(briefSchema),
@@ -160,9 +161,9 @@ export default function BriefForm() {
         throw new Error(result.error || result.details || "Помилка при відправці форми");
       }
 
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("brief-form-data");
-      }
+      localStorage.removeItem("brief-form-data");
+      reset();
+      setCurrentStep(1);
       setSubmitSuccess(true);
     } catch (error: any) {
       console.error("Submit error:", error);
