@@ -63,6 +63,12 @@ export default function AdminLayout({
     );
   }
 
+  const handleLogout = () => {
+    localStorage.removeItem("isAdmin");
+    setIsAdmin(false);
+    router.push("/admin-login");
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -79,6 +85,12 @@ export default function AdminLayout({
             <Link href="/brief" className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
               Бриф
             </Link>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              Вийти
+            </button>
           </div>
         </div>
       </header>

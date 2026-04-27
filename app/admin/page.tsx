@@ -62,6 +62,20 @@ export default function AdminPage() {
     }
   };
 
+  const deleteBrief = async (id: string) => {
+    if (!confirm("Ви впевнені, що хочете видалити цей бриф?")) {
+      return;
+    }
+    try {
+      await fetch(`/api/brief/${id}`, {
+        method: "DELETE",
+      });
+      fetchBriefs();
+    } catch (error) {
+      console.error("Error deleting brief:", error);
+    }
+  };
+
   const viewBrief = (brief: Brief) => {
     router.push(`/admin/brief/${brief.id}`);
   };
@@ -149,12 +163,20 @@ export default function AdminPage() {
                     </select>
                   </td>
                   <td className="px-6 py-4">
-                    <button
-                      onClick={() => viewBrief(brief)}
-                      className="px-4 py-2 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
-                    >
-                      Переглянути
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => viewBrief(brief)}
+                        className="px-4 py-2 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
+                      >
+                        Переглянути
+                      </button>
+                      <button
+                        onClick={() => deleteBrief(brief.id)}
+                        className="px-4 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        Видалити
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
