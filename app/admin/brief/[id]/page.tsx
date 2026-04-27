@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 
 interface Brief {
@@ -76,11 +76,7 @@ export default function BriefDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetchBrief();
-  }, [params.id]);
-
-  const fetchBrief = async () => {
+  const fetchBrief = useCallback(async () => {
     try {
       const response = await fetch(`/api/brief/${params.id}`);
       if (!response.ok) {
@@ -94,7 +90,11 @@ export default function BriefDetailPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [params.id]);
+
+  useEffect(() => {
+    fetchBrief();
+  }, [fetchBrief]);
 
   const updateStatus = async (newStatus: string) => {
     if (!brief) return;
