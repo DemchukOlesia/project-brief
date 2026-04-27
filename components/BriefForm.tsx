@@ -250,7 +250,7 @@ export default function BriefForm() {
                 )}
               </div>
               <div className="md:col-span-2">
-                <label className={labelClass}>ПІБ контактної особи *</label>
+                <label className={labelClass}>ПІБ контактної особи <span className="text-red-500">*</span></label>
                 <input
                   {...register("contactName")}
                   placeholder="Іван Іванов"
@@ -263,7 +263,7 @@ export default function BriefForm() {
                 )}
               </div>
               <div>
-                <label className={labelClass}>Номер телефону *</label>
+                <label className={labelClass}>Номер телефону <span className="text-red-500">*</span></label>
                 <input
                   {...register("phone")}
                   type="tel"
@@ -272,7 +272,7 @@ export default function BriefForm() {
                 />
               </div>
               <div>
-                <label className={labelClass}>Email *</label>
+                <label className={labelClass}>Email <span className="text-red-500">*</span></label>
                 <input
                   {...register("email")}
                   type="email"
@@ -281,7 +281,7 @@ export default function BriefForm() {
                 />
               </div>
               <div>
-                <label className={labelClass}>Зручний спосіб зв&apos;язку *</label>
+                <label className={labelClass}>Зручний спосіб зв&apos;язку <span className="text-red-500">*</span></label>
                 <input
                   {...register("contactMethod")}
                   placeholder="Наприклад: телефон, Telegram, email"
@@ -319,7 +319,7 @@ export default function BriefForm() {
             <h2 className="text-xl font-semibold text-gray-900">Ідея та цілі проєкту</h2>
             
             <div>
-              <label className={labelClass}>Опишіть ідею вашого проєкту *</label>
+              <label className={labelClass}>Опишіть ідею вашого проєкту <span className="text-red-500">*</span></label>
               <textarea
                 {...register("features")}
                 rows={4}
@@ -330,7 +330,7 @@ export default function BriefForm() {
             </div>
 
             <div>
-              <label className={labelClass}>Яку проблему вирішує ваш проєкт? *</label>
+              <label className={labelClass}>Яку проблему вирішує ваш проєкт? <span className="text-red-500">*</span></label>
               <textarea
                 {...register("problem")}
                 rows={4}
@@ -341,7 +341,7 @@ export default function BriefForm() {
             </div>
 
             <div>
-              <label className={labelClass}>Яка основна мета проєкту? *</label>
+              <label className={labelClass}>Яка основна мета проєкту? <span className="text-red-500">*</span></label>
               <textarea
                 {...register("goal")}
                 rows={4}
@@ -428,7 +428,7 @@ export default function BriefForm() {
             <h2 className="text-xl font-semibold text-gray-900">Функціонал проєкту</h2>
             
             <div>
-              <label className={labelClass}>Які функціональні модулі повинні бути в системі? *</label>
+              <label className={labelClass}>Які функціональні модулі повинні бути в системі? <span className="text-red-500">*</span></label>
               <textarea
                 {...register("functionalModules")}
                 rows={4}
@@ -493,7 +493,7 @@ export default function BriefForm() {
             </div>
 
             <div>
-              <label className={labelClass}>Які функції є критично важливими для першої версії (MVP)? *</label>
+              <label className={labelClass}>Які функції є критично важливими для першої версії (MVP)? <span className="text-red-500">*</span></label>
               <textarea
                 rows={4}
                 placeholder="Що має бути реалізовано в першу чергу"
@@ -609,7 +609,7 @@ export default function BriefForm() {
             <h2 className="text-xl font-semibold text-gray-900">Бюджет та терміни</h2>
             
             <div>
-              <label className={labelClass}>Який орієнтовний бюджет проєкту? *</label>
+              <label className={labelClass}>Який орієнтовний бюджет проєкту? <span className="text-red-500">*</span></label>
               <textarea
                 {...register("budget")}
                 rows={4}
@@ -620,7 +620,7 @@ export default function BriefForm() {
             </div>
 
             <div>
-              <label className={labelClass}>Які бажані терміни реалізації? *</label>
+              <label className={labelClass}>Які бажані терміни реалізації? <span className="text-red-500">*</span></label>
               <textarea
                 {...register("deadline")}
                 rows={4}
@@ -631,7 +631,7 @@ export default function BriefForm() {
             </div>
 
             <div>
-              <label className={labelClass}>Що для вас важливіше: швидкість, якість чи бюджет? *</label>
+              <label className={labelClass}>Що для вас важливіше: швидкість, якість чи бюджет? <span className="text-red-500">*</span></label>
               <textarea
                 {...register("priority")}
                 rows={4}
