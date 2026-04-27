@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Brief {
+  id                String   @id @default(cuid())
+  companyName       String
+  contactName       String
+  phone             String
+  email             String
+  contactMethod     String
+  messenger         String?
+  contactTime       String?
+  goal              String
+  problem           String
+  features          String
+  functionalModules String
+  valueProposition  String?
+  targetAudience    String?
+  uniqueness        String?
+  competitors       String?
+  existingWork      String?
+  references        String?
+  expectations      String?
+  needAuth          Boolean @default(false)
+  needApi           Boolean @default(false)
+  exampleSites      String?
+  designStyle       String?
+  budget            String
+  deadline          String
+  priority          String
+  comments          String?
+  status            String   @default("new")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model User {
+  id       String @id @default(cuid())
+  email    String @unique
+  password String
+  name     String?
+}
