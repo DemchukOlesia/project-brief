@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { requiredFieldsByStep } from "@/lib/validation";
+import { requiredFieldsByStep, stepFieldOrder, allFieldLabels } from "@/lib/validation";
 
 interface Brief {
   id: string;
@@ -34,41 +34,16 @@ interface Brief {
   status: string;
 }
 
-const fieldLabels: Record<string, string> = {
-  companyName: "Назва компанії",
-  contactName: "Контактна особа",
-  phone: "Телефон",
-  email: "Email",
-  contactMethod: "Зручний спосіб зв'язку",
-  messenger: "Мессенджер",
-  contactTime: "Зручний час для зв'язку",
-  projectType: "Тип проєкту",
-  goal: "Мета проєкту",
-  problem: "Проблема, яку вирішує",
-  features: "Очікуваний функціонал",
-  functionalModules: "Функціональні модулі",
-  valueProposition: "Унікальна пропозиція",
-  targetAudience: "Цільова аудиторія",
-  uniqueness: "Унікальність продукту",
-  competitors: "Конкуренти",
-  existingWork: "Існуюча робота",
-  references: "Посилання на референси",
-  expectations: "Очікування",
-  designStyle: "Стиль дизайну",
-  budget: "Бюджет",
-  deadline: "Дедлайн",
-  priority: "Пріоритети",
-  comments: "Додаткові коментарі",
+const stepsMap: Record<number, { name: string; fields: string[] }> = {
+  1: { name: "Контакти", fields: stepFieldOrder[1] },
+  2: { name: "Проєкт", fields: stepFieldOrder[2] },
+  3: { name: "Функціонал", fields: stepFieldOrder[3] },
+  4: { name: "Дизайн", fields: stepFieldOrder[4] },
+  5: { name: "Бюджет та терміни", fields: stepFieldOrder[5] },
+  6: { name: "Додатково", fields: stepFieldOrder[6] },
 };
 
-const stepsMap: Record<number, { name: string; fields: string[] }> = {
-  1: { name: "Контакти", fields: ["companyName", "contactName", "phone", "email", "contactMethod", "messenger", "contactTime"] },
-  2: { name: "Проєкт", fields: ["projectType", "goal", "problem"] },
-  3: { name: "Функціонал", fields: ["features", "functionalModules"] },
-  4: { name: "Дизайн", fields: ["valueProposition", "targetAudience", "uniqueness", "competitors", "existingWork", "references", "designStyle"] },
-  5: { name: "Бюджет та терміни", fields: ["budget", "deadline", "priority"] },
-  6: { name: "Додатково", fields: ["expectations", "comments"] },
-};
+const fieldLabels = allFieldLabels;
 
 export default function BriefDetailPage() {
   const router = useRouter();
