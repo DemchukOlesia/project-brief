@@ -16,7 +16,7 @@ model Brief {
   status        String   @default("new")
   
   // Всі відповіді на питання брифу зберігаємо тут
-  data          Json
+  data          Json?
   
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
