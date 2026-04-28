@@ -73,7 +73,7 @@ export const requiredFieldsByStep: Record<number, (keyof BriefFormData)[]> = {
 };
 
 export const stepFieldOrder: Record<number, string[]> = {
-  1: ["companyName", "contactName", "phone", "email", "contactMethod", "messenger", "contactTime"],
+  1: ["companyName", "contactName", "phone", "email", "contactMethod", "contactTime"],
   2: ["features", "problem", "goal", "valueProposition", "targetAudience", "uniqueness", "competitors", "existingWork", "references", "expectations"],
   3: ["functionalModules", "authSystem", "adminPanel", "integrations", "automation", "notifications", "search", "mvpFeatures", "excludedFeatures"],
   4: ["designStyle", "brandStyle", "colors", "designAttention", "designRestrictions", "dislikedDesign"],

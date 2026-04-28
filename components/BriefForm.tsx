@@ -43,7 +43,6 @@ export default function BriefForm() {
       phone: "",
       email: "",
       contactMethod: "",
-      messenger: "",
       contactTime: "",
       goal: "",
       problem: "",
