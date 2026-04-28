@@ -23,11 +23,6 @@ function checkRateLimit(ip: string, limit = 10, windowMs = 60000): boolean {
   }
 }
 
-function sanitizeInput(input: string): string {
-  if (typeof input !== "string") return "";
-  return input.trim().slice(0, 5000);
-}
-
 export async function GET() {
   try {
     const briefs = await prisma.brief.findMany({
@@ -56,37 +51,15 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     
-    const dataToSave = {
-      companyName: sanitizeInput(body.companyName),
-      contactName: sanitizeInput(body.contactName),
-      phone: sanitizeInput(body.phone),
-      email: sanitizeInput(body.email),
-      contactMethod: sanitizeInput(body.contactMethod),
-      messenger: sanitizeInput(body.messenger) || null,
-      contactTime: sanitizeInput(body.contactTime) || null,
-      goal: sanitizeInput(body.goal),
-      problem: sanitizeInput(body.problem),
-      features: sanitizeInput(body.features),
-      functionalModules: sanitizeInput(body.functionalModules),
-      valueProposition: sanitizeInput(body.valueProposition) || null,
-      targetAudience: sanitizeInput(body.targetAudience) || null,
-      uniqueness: sanitizeInput(body.uniqueness) || null,
-      competitors: sanitizeInput(body.competitors) || null,
-      existingWork: sanitizeInput(body.existingWork) || null,
-      references: sanitizeInput(body.references) || null,
-      expectations: sanitizeInput(body.expectations) || null,
-      needAuth: Boolean(body.needAuth),
-      needApi: Boolean(body.needApi),
-      exampleSites: sanitizeInput(body.exampleSites) || null,
-      designStyle: sanitizeInput(body.designStyle) || null,
-      budget: sanitizeInput(body.budget),
-      deadline: sanitizeInput(body.deadline),
-      priority: sanitizeInput(body.priority),
-      comments: sanitizeInput(body.comments) || null,
-    };
-
+    // Зберігаємо основні поля окремо для зручності пошуку, а все інше в Json
     const brief = await prisma.brief.create({
-      data: dataToSave,
+      data: {
+        companyName: body.companyName || "Не вказано",
+        contactName: body.contactName || "Не вказано",
+        email: body.email || "Не вказано",
+        phone: body.phone || "Не вказано",
+        data: body, // Зберігаємо весь об'єкт з усіма питаннями
+      },
     });
 
     return NextResponse.json(brief, { status: 201 });

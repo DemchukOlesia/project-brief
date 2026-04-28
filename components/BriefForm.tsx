@@ -15,28 +15,6 @@ const steps = [
   { id: 6, name: "Додатково", requiredNote: "* Обов'язкові поля" },
 ];
 
-const projectTypes = [
-  { value: "website", label: "Веб-сайт" },
-  { value: "mobile", label: "Мобільний додаток" },
-  { value: "saas", label: "SaaS" },
-  { value: "ecommerce", label: "Інтернет-магазин" },
-  { value: "corporate", label: "Корпоративний портал" },
-  { value: "other", label: "Інше" },
-];
-
-const featuresList = [
-  "Каталог товарів/послуг",
-  "Кошик",
-  "Оформлення замовлення",
-  "Особистий кабінет",
-  "Блог",
-  "Контактна форма",
-  "Пошук",
-  "Фільтри",
-  "Відгуки/рейтинг",
-  "Чат-підтримка",
-];
-
 const inputClass = "w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200";
 const labelClass = "block text-sm font-medium text-gray-700 mb-2";
 const errorClass = "text-red-500 text-sm mt-1";
@@ -67,11 +45,9 @@ export default function BriefForm() {
       contactMethod: "",
       messenger: "",
       contactTime: "",
-      projectType: "",
       goal: "",
       problem: "",
       features: "",
-      functionalModules: "",
       valueProposition: "",
       targetAudience: "",
       uniqueness: "",
@@ -79,13 +55,26 @@ export default function BriefForm() {
       existingWork: "",
       references: "",
       expectations: "",
-      needAuth: false,
-      needApi: false,
-      exampleSites: "",
+      functionalModules: "",
+      authSystem: "",
+      adminPanel: "",
+      integrations: "",
+      automation: "",
+      notifications: "",
+      search: "",
+      mvpFeatures: "",
       designStyle: "",
+      brandStyle: "",
+      colors: "",
+      designAttention: "",
+      designRestrictions: "",
+      dislikedDesign: "",
       budget: "",
       deadline: "",
       priority: "",
+      fixedDeadlines: "",
+      stagedExecution: "",
+      additionalConstraints: "",
       comments: "",
     },
   });
@@ -100,14 +89,15 @@ export default function BriefForm() {
             setValue(key as keyof BriefFormData, parsed[key]);
           }
         });
+        if (parsed.currentStep) {
+          // currentStep logic handled separately to avoid jump on initial load
+        }
       } catch (e) {
         console.error("Failed to parse saved form data", e);
       }
     }
   }, [setValue]);
 
-  const watchedContactMethod = watch("contactMethod");
-  const showMessengerField = watchedContactMethod === "telegram" || watchedContactMethod === "viber";
   const watchedValues = watch();
 
   useEffect(() => {
@@ -121,11 +111,8 @@ export default function BriefForm() {
   }, [watchedValues, currentStep]);
 
   const handleNext = async () => {
-    console.log('[handleNext] called, currentStep:', currentStep);
     const stepFields = requiredFieldsByStep[currentStep] || [];
-    console.log('[handleNext] validating fields:', stepFields);
     const isValid = await trigger(stepFields as any, { shouldFocus: true });
-    console.log('[handleNext] validation result:', isValid);
     
     if (!isValid) {
       return;
@@ -143,24 +130,24 @@ export default function BriefForm() {
       return;
     }
     
-    if (stepId === currentStep) {
-      return;
+    // Перевірка всіх попередніх кроків до того, на який хочемо перейти
+    for (let s = 1; s < stepId; s++) {
+      const stepFields = requiredFieldsByStep[s] || [];
+      const isValid = await trigger(stepFields as any);
+      if (!isValid) {
+        setCurrentStep(s);
+        return;
+      }
     }
     
-    const stepFields = requiredFieldsByStep[currentStep] || [];
-    const isValid = await trigger(stepFields as any);
-    
-    if (isValid) {
-      setCurrentStep(stepId);
-    }
+    setCurrentStep(stepId);
   };
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: BriefFormData) => {
     setIsSubmitting(true);
     setSubmitError("");
 
     try {
-      console.log("Submitting data:", data);
       const response = await fetch("/api/brief", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -168,10 +155,9 @@ export default function BriefForm() {
       });
 
       const result = await response.json();
-      console.log("Response:", response.status, result);
       
       if (!response.ok) {
-        throw new Error(result.error || result.details || "Помилка при відправці форми");
+        throw new Error(result.error || "Помилка при відправці форми");
       }
 
       localStorage.removeItem("brief-form-data");
@@ -194,14 +180,10 @@ export default function BriefForm() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Дякуємо за заявку!
-        </h2>
-        <p className="text-gray-500 mb-6">
-          Ваш бриф успішно відправлено. Ми зв&apos;яжемося з вами найближчим часом.
-        </p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Дякуємо за заявку!</h2>
+        <p className="text-gray-500 mb-6">Ваш бриф успішно відправлено. Ми зв&apos;яжемося з вами найближчим часом.</p>
         <button
-          onClick={() => router.push("/brief")}
+          onClick={() => setSubmitSuccess(false)}
           className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
         >
           Заповнити ще один бриф
@@ -220,12 +202,12 @@ export default function BriefForm() {
             <div
               key={step.id}
               onClick={() => handleStepClick(step.id)}
-              className={`text-xs font-medium cursor-pointer hover:opacity-80 ${
+              className={`text-xs font-medium cursor-pointer transition-colors ${
                 step.id === currentStep
                   ? "text-blue-600"
                   : step.id < currentStep
                   ? "text-green-600"
-                  : "text-gray-300"
+                  : "text-gray-300 hover:text-gray-400"
               }`}
             >
               {step.id < currentStep ? (
@@ -237,16 +219,11 @@ export default function BriefForm() {
           ))}
         </div>
         <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-blue-600 rounded-full transition-all duration-500"
-            style={{ width: `${progress}%` }}
-          />
+          <div className="h-full bg-blue-600 rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
         </div>
         <p className="text-center mt-3 text-sm text-gray-500">
           Крок {currentStep} з {steps.length}: {steps[currentStep - 1].name}
-          {steps[currentStep - 1].requiredNote && (
-            <span className="ml-2 text-red-500">{steps[currentStep - 1].requiredNote}</span>
-          )}
+          <span className="ml-2 text-red-500">* Обов&apos;язкові поля</span>
         </p>
       </div>
 
@@ -256,32 +233,22 @@ export default function BriefForm() {
             <h2 className="text-xl font-semibold text-gray-900">Контактна інформація</h2>
             <div className="grid md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <label className={labelClass}>
-                  Назва компанії <span className="text-red-500">*</span>
-                </label>
+                <label className={labelClass}>Назва компанії <span className="text-red-500">*</span></label>
                 <input
                   {...register("companyName")}
                   placeholder="ТОВ &quot;Компанія&quot;"
-                  className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
-                    errors.companyName ? "border-red-500" : "border-gray-200"
-                  }`}
+                  className={`${inputClass} ${errors.companyName ? "border-red-500" : ""}`}
                 />
-                {errors.companyName && (
-                  <p className="text-red-500 text-sm mt-1">{errors.companyName.message as string}</p>
-                )}
+                {errors.companyName && <p className={errorClass}>{errors.companyName.message}</p>}
               </div>
               <div className="md:col-span-2">
                 <label className={labelClass}>ПІБ контактної особи <span className="text-red-500">*</span></label>
                 <input
                   {...register("contactName")}
                   placeholder="Іван Іванов"
-                  className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
-                    errors.contactName ? "border-red-500" : "border-gray-200"
-                  }`}
+                  className={`${inputClass} ${errors.contactName ? "border-red-500" : ""}`}
                 />
-                {errors.contactName && (
-                  <p className="text-red-500 text-sm mt-1">{errors.contactName.message as string}</p>
-                )}
+                {errors.contactName && <p className={errorClass}>{errors.contactName.message}</p>}
               </div>
               <div>
                 <label className={labelClass}>Номер телефону <span className="text-red-500">*</span></label>
@@ -289,13 +256,9 @@ export default function BriefForm() {
                   {...register("phone")}
                   type="tel"
                   placeholder="+380XXXXXXXXX"
-                  className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
-                    errors.phone ? "border-red-500" : "border-gray-200"
-                  }`}
+                  className={`${inputClass} ${errors.phone ? "border-red-500" : ""}`}
                 />
-                {errors.phone && (
-                  <p className="text-red-500 text-sm mt-1">{errors.phone.message as string}</p>
-                )}
+                {errors.phone && <p className={errorClass}>{errors.phone.message}</p>}
               </div>
               <div>
                 <label className={labelClass}>Email <span className="text-red-500">*</span></label>
@@ -303,514 +266,165 @@ export default function BriefForm() {
                   {...register("email")}
                   type="email"
                   placeholder="email@company.com"
-                  className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
-                    errors.email ? "border-red-500" : "border-gray-200"
-                  }`}
+                  className={`${inputClass} ${errors.email ? "border-red-500" : ""}`}
                 />
-                {errors.email && (
-                  <p className="text-red-500 text-sm mt-1">{errors.email.message as string}</p>
-                )}
+                {errors.email && <p className={errorClass}>{errors.email.message}</p>}
               </div>
               <div>
                 <label className={labelClass}>Зручний спосіб зв&apos;язку <span className="text-red-500">*</span></label>
                 <input
                   {...register("contactMethod")}
-                  placeholder="Наприклад: телефон, Telegram, email"
-                  className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
-                    errors.contactMethod ? "border-red-500" : "border-gray-200"
-                  }`}
+                  placeholder="Телефон, Telegram, email"
+                  className={`${inputClass} ${errors.contactMethod ? "border-red-500" : ""}`}
                 />
-                {errors.contactMethod && (
-                  <p className="text-red-500 text-sm mt-1">{errors.contactMethod.message as string}</p>
-                )}
+                {errors.contactMethod && <p className={errorClass}>{errors.contactMethod.message}</p>}
               </div>
               <div>
                 <label className={labelClass}>Зручний час для зв&apos;язку <span className="text-red-500">*</span></label>
                 <input
                   {...register("contactTime")}
-                  placeholder="Наприклад: 10:00–18:00"
-                  className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
-                    errors.contactTime ? "border-red-500" : "border-gray-200"
-                  }`}
+                  placeholder="10:00–18:00"
+                  className={`${inputClass} ${errors.contactTime ? "border-red-500" : ""}`}
                 />
-                {errors.contactTime && (
-                  <p className="text-red-500 text-sm mt-1">{errors.contactTime.message as string}</p>
-                )}
+                {errors.contactTime && <p className={errorClass}>{errors.contactTime.message}</p>}
               </div>
-              {showMessengerField && (
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
-                    <label className={labelClass}>
-                      Контакт у {watchedContactMethod === "telegram" ? "Telegram" : "Viber"} <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      {...register("messenger")}
-                      placeholder={watchedContactMethod === "telegram" ? "@username" : "+380XXXXXXXXX"}
-                      className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
-                        errors.messenger ? "border-red-500" : "border-gray-200"
-                      }`}
-                    />
-                    {errors.messenger && (
-                      <p className="text-red-500 text-sm mt-1">{errors.messenger.message as string}</p>
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         )}
 
         {currentStep === 2 && (
-          <div className="space-y-6 max-w-[800px] mx-auto">
+          <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-900">Ідея та цілі проєкту</h2>
-            
-            <div>
-              <label className={labelClass}>Опишіть ідею вашого проєкту <span className="text-red-500">*</span></label>
-              <textarea
-                {...register("features")}
-                rows={4}
-                placeholder="Що це за продукт, для чого він створюється та в чому його суть"
-                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical ${
-                  errors.features ? "border-red-500" : "border-gray-200"
-                }`}
-              />
-              {errors.features && (
-                <p className="text-red-500 text-sm mt-1">{errors.features.message as string}</p>
-              )}
-            </div>
-
-            <div>
-              <label className={labelClass}>Яку проблему вирішує ваш проєкт? <span className="text-red-500">*</span></label>
-              <textarea
-                {...register("problem")}
-                rows={4}
-                placeholder="Яка потреба або проблема існує зараз і як ваш продукт її вирішує"
-                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical ${
-                  errors.problem ? "border-red-500" : "border-gray-200"
-                }`}
-              />
-              {errors.problem && (
-                <p className="text-red-500 text-sm mt-1">{errors.problem.message as string}</p>
-              )}
-            </div>
-
-            <div>
-              <label className={labelClass}>Яка основна мета проєкту? <span className="text-red-500">*</span></label>
-              <textarea
-                {...register("goal")}
-                rows={4}
-                placeholder="Якого результату ви хочете досягти (наприклад: прибуток, автоматизація, зручність для користувачів)"
-                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical ${
-                  errors.goal ? "border-red-500" : "border-gray-200"
-                }`}
-              />
-              {errors.goal && (
-                <p className="text-red-500 text-sm mt-1">{errors.goal.message as string}</p>
-              )}
-            </div>
-
-            <div>
-              <label className={labelClass}>Яку цінність отримає користувач? <span className="text-red-500">*</span></label>
-              <textarea
-                {...register("valueProposition")}
-                rows={4}
-                placeholder="Чому люди будуть користуватися вашим продуктом, яку користь він дає"
-                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical ${
-                  errors.valueProposition ? "border-red-500" : "border-gray-200"
-                }`}
-              />
-              {errors.valueProposition && (
-                <p className="text-red-500 text-sm mt-1">{errors.valueProposition.message as string}</p>
-              )}
-            </div>
-
-            <div>
-              <label className={labelClass}>Хто ваша цільова аудиторія? <span className="text-red-500">*</span></label>
-              <textarea
-                {...register("targetAudience")}
-                rows={4}
-                placeholder="Опишіть користувачів: вік, інтереси, тип (B2B, B2C тощо)"
-                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical ${
-                  errors.targetAudience ? "border-red-500" : "border-gray-200"
-                }`}
-              />
-              {errors.targetAudience && (
-                <p className="text-red-500 text-sm mt-1">{errors.targetAudience.message as string}</p>
-              )}
-            </div>
-
-            <div>
-              <label className={labelClass}>У чому унікальність вашого проєкту? <span className="text-red-500">*</span></label>
-              <textarea
-                {...register("uniqueness")}
-                rows={3}
-                placeholder="Чим ваш продукт відрізняється від інших або конкурентів"
-                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[100px] resize-vertical ${
-                  errors.uniqueness ? "border-red-500" : "border-gray-200"
-                }`}
-              />
-              {errors.uniqueness && (
-                <p className="text-red-500 text-sm mt-1">{errors.uniqueness.message as string}</p>
-              )}
-            </div>
-
-            <div>
-              <label className={labelClass}>Чи є вже подібні рішення або конкуренти? <span className="text-red-500">*</span></label>
-              <textarea
-                {...register("competitors")}
-                rows={3}
-                placeholder="Наведіть приклади конкурентів або схожих продуктів"
-                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[100px] resize-vertical ${
-                  errors.competitors ? "border-red-500" : "border-gray-200"
-                }`}
-              />
-              {errors.competitors && (
-                <p className="text-red-500 text-sm mt-1">{errors.competitors.message as string}</p>
-              )}
-            </div>
-
-            <div>
-              <label className={labelClass}>Чи є у вас вже щось готове? <span className="text-red-500">*</span></label>
-              <textarea
-                {...register("existingWork")}
-                rows={3}
-                placeholder="Ідея, прототип, дизайн, готовий продукт або нічого"
-                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[100px] resize-vertical ${
-                  errors.existingWork ? "border-red-500" : "border-gray-200"
-                }`}
-              />
-              {errors.existingWork && (
-                <p className="text-red-500 text-sm mt-1">{errors.existingWork.message as string}</p>
-              )}
-            </div>
-
-            <div>
-              <label className={labelClass}>Посилання на приклади (референси) <span className="text-red-500">*</span></label>
-              <textarea
-                {...register("references")}
-                rows={3}
-                placeholder="Сайти або додатки, які вам подобаються (і чому)"
-                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[100px] resize-vertical ${
-                  errors.references ? "border-red-500" : "border-gray-200"
-                }`}
-              />
-              {errors.references && (
-                <p className="text-red-500 text-sm mt-1">{errors.references.message as string}</p>
-              )}
-            </div>
-
-            <div>
-              <label className={labelClass}>Які очікування від результату? <span className="text-red-500">*</span></label>
-              <textarea
-                {...register("expectations")}
-                rows={3}
-                placeholder="Яким ви бачите кінцевий продукт"
-                className={`${inputClass} min-h-[100px] resize-vertical`}
-              />
-              {errors.expectations && (
-                <p className="text-red-500 text-sm mt-1">{errors.expectations.message as string}</p>
-              )}
-            </div>
+            {[
+              { id: "features", label: "Опишіть ідею вашого проєкту", placeholder: "Що це за продукт, для чого він створюється" },
+              { id: "problem", label: "Яку проблему вирішує проєкт?", placeholder: "Яка потреба існує зараз" },
+              { id: "goal", label: "Яка основна мета проєкту?", placeholder: "Результат, якого хочете досягти" },
+              { id: "valueProposition", label: "Яку цінність отримає користувач?", placeholder: "Чому люди будуть користуватися продуктом" },
+              { id: "targetAudience", label: "Хто ваша цільова аудиторія?", placeholder: "Вік, інтереси, тип" },
+              { id: "uniqueness", label: "У чому унікальність вашого проєкту?", placeholder: "Чим відрізняється від інших" },
+              { id: "competitors", label: "Чи є подібні рішення або конкуренти?", placeholder: "Приклади схожих продуктів" },
+              { id: "existingWork", label: "Чи є у вас вже щось готове?", placeholder: "Ідея, прототип, дизайн" },
+              { id: "references", label: "Посилання на приклади (референси)", placeholder: "Сайти або додатки, які вам подобаються" },
+              { id: "expectations", label: "Які очікування від результату?", placeholder: "Яким ви бачите кінцевий продукт" },
+            ].map((field) => (
+              <div key={field.id}>
+                <label className={labelClass}>{field.label} <span className="text-red-500">*</span></label>
+                <textarea
+                  {...register(field.id as keyof BriefFormData)}
+                  rows={3}
+                  placeholder={field.placeholder}
+                  className={`${inputClass} min-h-[100px] ${errors[field.id as keyof BriefFormData] ? "border-red-500" : ""}`}
+                />
+                {errors[field.id as keyof BriefFormData] && (
+                  <p className={errorClass}>{errors[field.id as keyof BriefFormData]?.message}</p>
+                )}
+              </div>
+            ))}
           </div>
         )}
 
         {currentStep === 3 && (
-          <div className="space-y-8 max-w-[750px] mx-auto">
+          <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-900">Функціонал проєкту</h2>
-            
-            <div>
-              <label className={labelClass}>Які функціональні модулі повинні бути в системі? <span className="text-red-500">*</span></label>
-              <textarea
-                {...register("functionalModules")}
-                rows={4}
-                placeholder="Наприклад: реєстрація, каталог, профіль, замовлення, аналітика"
-                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical ${
-                  errors.functionalModules ? "border-red-500" : "border-gray-200"
-                }`}
-              />
-              {errors.functionalModules && (
-                <p className="text-red-500 text-sm mt-1">{errors.functionalModules.message as string}</p>
-              )}
-            </div>
-
-            <div>
-              <label className={labelClass}>Як має працювати система доступу (реєстрація, авторизація, ролі)?</label>
-              <textarea
-                rows={4}
-                placeholder="Опишіть способи входу та рівні доступу"
-                className={`${inputClass} min-h-[120px] resize-vertical`}
-              />
-            </div>
-
-            <div>
-              <label className={labelClass}>Що має бути доступно в особистому кабінеті та/або адмін-панелі?</label>
-              <textarea
-                rows={4}
-                placeholder="Які дії та дані доступні для користувача і адміністратора"
-                className={`${inputClass} min-h-[120px] resize-vertical`}
-              />
-            </div>
-
-            <div>
-              <label className={labelClass}>Які інтеграції необхідні для роботи системи?</label>
-              <textarea
-                rows={4}
-                placeholder="Платежі, API, CRM або інші сервіси"
-                className={`${inputClass} min-h-[120px] resize-vertical`}
-              />
-            </div>
-
-            <div>
-              <label className={labelClass}>Які дії повинні запускати автоматичні процеси?</label>
-              <textarea
-                rows={4}
-                placeholder="Наприклад: після створення заявки, оплати або реєстрації"
-                className={`${inputClass} min-h-[120px] resize-vertical`}
-              />
-            </div>
-
-            <div>
-              <label className={labelClass}>Які повідомлення або сповіщення повинна надсилати система?</label>
-              <textarea
-                rows={4}
-                placeholder="Коли і кому надсилаються повідомлення"
-                className={`${inputClass} min-h-[120px] resize-vertical`}
-              />
-            </div>
-
-            <div>
-              <label className={labelClass}>Який функціонал повинен мати пошук або фільтрація?</label>
-              <textarea
-                rows={4}
-                placeholder="Що саме потрібно знаходити або сортувати"
-                className={`${inputClass} min-h-[120px] resize-vertical`}
-              />
-            </div>
-
-            <div>
-              <label className={labelClass}>Які функції є критично важливими для першої версії (MVP)? <span className="text-red-500">*</span></label>
-              <textarea
-                rows={4}
-                placeholder="Що має бути реалізовано в першу чергу"
-                className={`${inputClass} min-h-[120px] resize-vertical`}
-              />
-            </div>
-
-            <div>
-              <label className={labelClass}>Які функції НЕ входять у цей проєкт?</label>
-              <textarea
-                rows={4}
-                placeholder="Вкажіть межі функціоналу"
-                className={`${inputClass} min-h-[120px] resize-vertical`}
-              />
-            </div>
+            {[
+              { id: "functionalModules", label: "Які функціональні модулі повинні бути?", placeholder: "Реєстрація, каталог, профіль, замовлення" },
+              { id: "authSystem", label: "Система доступу (реєстрація, ролі)", placeholder: "Опишіть рівні доступу" },
+              { id: "adminPanel", label: "Що має бути в адмін-панелі?", placeholder: "Дії та дані для адміністратора" },
+              { id: "integrations", label: "Які інтеграції необхідні?", placeholder: "Платежі, API, CRM" },
+              { id: "automation", label: "Автоматичні процеси", placeholder: "Дії, що запускають процеси" },
+              { id: "notifications", label: "Система сповіщень", placeholder: "Кому і коли надсилати" },
+              { id: "search", label: "Пошук та фільтрація", placeholder: "Що саме потрібно знаходити" },
+              { id: "mvpFeatures", label: "Критично важливий функціонал (MVP)", placeholder: "Що реалізувати в першу чергу" },
+            ].map((field) => (
+              <div key={field.id}>
+                <label className={labelClass}>{field.label} <span className="text-red-500">*</span></label>
+                <textarea
+                  {...register(field.id as keyof BriefFormData)}
+                  rows={3}
+                  placeholder={field.placeholder}
+                  className={`${inputClass} min-h-[100px] ${errors[field.id as keyof BriefFormData] ? "border-red-500" : ""}`}
+                />
+                {errors[field.id as keyof BriefFormData] && (
+                  <p className={errorClass}>{errors[field.id as keyof BriefFormData]?.message}</p>
+                )}
+              </div>
+            ))}
           </div>
         )}
 
         {currentStep === 4 && (
-          <div className="space-y-8 max-w-[750px] mx-auto">
+          <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-900">Дизайн та стиль</h2>
-            
-            <div>
-              <label className={labelClass}>Який стиль дизайну вам подобається? <span className="text-red-500">*</span></label>
-              <textarea
-                {...register("designStyle")}
-                rows={4}
-                placeholder="Наприклад: мінімалізм, сучасний, корпоративний, яскравий, темний"
-                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical ${
-                  errors.designStyle ? "border-red-500" : "border-gray-200"
-                }`}
-              />
-              {errors.designStyle && (
-                <p className="text-red-500 text-sm mt-1">{errors.designStyle.message as string}</p>
-              )}
-            </div>
-
-            <div>
-              <label className={labelClass}>Чи є у вас фірмовий стиль або брендбук?</label>
-              <textarea
-                rows={4}
-                placeholder="Логотип, кольори, шрифти або інші елементи"
-                className={`${inputClass} min-h-[120px] resize-vertical`}
-              />
-            </div>
-
-            <div>
-              <label className={labelClass}>Які кольори або настрій повинен передавати дизайн?</label>
-              <textarea
-                rows={4}
-                placeholder="Наприклад: спокійний, строгий, енергійний, технологічний"
-                className={`${inputClass} min-h-[120px] resize-vertical`}
-              />
-            </div>
-
-            <div>
-              <label className={labelClass}>Який рівень уваги до дизайну важливий для вас?</label>
-              <textarea
-                rows={4}
-                placeholder="Наприклад: базовий, середній, преміум дизайн"
-                className={`${inputClass} min-h-[120px] resize-vertical`}
-              />
-            </div>
-
-            <div>
-              <label className={labelClass}>Чи є обмеження або вимоги до дизайну?</label>
-              <textarea
-                rows={4}
-                placeholder="Наприклад: корпоративні стандарти, простота, мінімум анімацій"
-                className={`${inputClass} min-h-[120px] resize-vertical`}
-              />
-            </div>
-
-            <div>
-              <label className={labelClass}>Що вам НЕ подобається в дизайні?</label>
-              <textarea
-                rows={4}
-                placeholder="Опишіть приклади або речі, яких варто уникати"
-                className={`${inputClass} min-h-[120px] resize-vertical`}
-              />
-            </div>
-
-            <div>
-              <label className={labelClass}>Завантажте файли (логотип, дизайн, брендбук, приклади)</label>
-              <input
-                type="file"
-                ref={fileInputRef}
-                multiple
-                accept=".jpg,.jpeg,.png,.svg,.pdf,.fig"
-                onChange={(e) => {
-                  const newFiles = Array.from(e.target.files || []);
-                  if (fileInputRef.current) {
-                    fileInputRef.current.value = "";
-                  }
-                }}
-                className="hidden"
-              />
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 hover:bg-gray-50 transition-all duration-200 cursor-pointer"
-              >
-                <div className="flex flex-col items-center gap-2">
-                  <svg className="w-10 h-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                  </svg>
-                  <p className="text-gray-600 font-medium">Перетягніть файли сюди або натисніть для завантаження</p>
-                  <p className="text-sm text-gray-400">JPG, PNG, SVG, PDF, Figma</p>
-                </div>
-              </button>
-              <p className="text-sm text-gray-400 mt-2">Ви можете додати логотип, макети, брендбук або будь-які приклади дизайну</p>
-            </div>
+            {[
+              { id: "designStyle", label: "Який стиль дизайну вам подобається?", placeholder: "Мінімалізм, сучасний, темний" },
+              { id: "brandStyle", label: "Фірмовий стиль або брендбук", placeholder: "Чи є логотип, кольори, шрифти" },
+              { id: "colors", label: "Кольори або настрій дизайну", placeholder: "Енергійний, строгий, технологічний" },
+              { id: "designAttention", label: "Рівень уваги до дизайну", placeholder: "Базовий, середній, преміум" },
+              { id: "designRestrictions", label: "Обмеження або вимоги", placeholder: "Корпоративні стандарти" },
+              { id: "dislikedDesign", label: "Що вам НЕ подобається?", placeholder: "Приклади речей, яких уникати" },
+            ].map((field) => (
+              <div key={field.id}>
+                <label className={labelClass}>{field.label} <span className="text-red-500">*</span></label>
+                <textarea
+                  {...register(field.id as keyof BriefFormData)}
+                  rows={3}
+                  placeholder={field.placeholder}
+                  className={`${inputClass} min-h-[100px] ${errors[field.id as keyof BriefFormData] ? "border-red-500" : ""}`}
+                />
+                {errors[field.id as keyof BriefFormData] && (
+                  <p className={errorClass}>{errors[field.id as keyof BriefFormData]?.message}</p>
+                )}
+              </div>
+            ))}
           </div>
         )}
 
         {currentStep === 5 && (
-          <div className="space-y-8 max-w-[750px] mx-auto">
+          <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-900">Бюджет та терміни</h2>
-            
-            <div>
-              <label className={labelClass}>Який орієнтовний бюджет проєкту? <span className="text-red-500">*</span></label>
-              <textarea
-                {...register("budget")}
-                rows={4}
-                placeholder="Вкажіть бажаний бюджет або діапазон"
-                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical ${
-                  errors.budget ? "border-red-500" : "border-gray-200"
-                }`}
-              />
-              {errors.budget && (
-                <p className="text-red-500 text-sm mt-1">{errors.budget.message as string}</p>
-              )}
-            </div>
-
-            <div>
-              <label className={labelClass}>Які бажані терміни реалізації? <span className="text-red-500">*</span></label>
-              <textarea
-                {...register("deadline")}
-                rows={4}
-                placeholder="Коли ви хочете отримати готовий продукт"
-                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical ${
-                  errors.deadline ? "border-red-500" : "border-gray-200"
-                }`}
-              />
-              {errors.deadline && (
-                <p className="text-red-500 text-sm mt-1">{errors.deadline.message as string}</p>
-              )}
-            </div>
-
-            <div>
-              <label className={labelClass}>Що для вас важливіше: швидкість, якість чи бюджет? <span className="text-red-500">*</span></label>
-              <textarea
-                {...register("priority")}
-                rows={4}
-                placeholder="Оберіть пріоритет або опишіть баланс між ними"
-                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical ${
-                  errors.priority ? "border-red-500" : "border-gray-200"
-                }`}
-              />
-              {errors.priority && (
-                <p className="text-red-500 text-sm mt-1">{errors.priority.message as string}</p>
-              )}
-            </div>
-
-            <div>
-              <label className={labelClass}>Чи є фіксовані дедлайни або важливі дати?</label>
-              <textarea
-                rows={4}
-                placeholder="Наприклад: запуск до певної події"
-                className={`${inputClass} min-h-[120px] resize-vertical`}
-              />
-            </div>
-
-            <div>
-              <label className={labelClass}>Чи можливе поетапне виконання (MVP → розширення)?</label>
-              <textarea
-                rows={4}
-                placeholder="Чи готові запускати проєкт частинами"
-                className={`${inputClass} min-h-[120px] resize-vertical`}
-              />
-            </div>
-
-            <div>
-              <label className={labelClass}>Чи є додаткові обмеження або умови?</label>
-              <textarea
-                rows={4}
-                placeholder="Будь-які фактори, які можуть вплинути на реалізацію"
-                className={`${inputClass} min-h-[120px] resize-vertical`}
-              />
-            </div>
+            {[
+              { id: "budget", label: "Орієнтовний бюджет проєкту", placeholder: "Бажаний бюджет або діапазон" },
+              { id: "deadline", label: "Бажані терміни реалізації", placeholder: "Коли хочете отримати продукт" },
+              { id: "priority", label: "Швидкість, якість чи бюджет?", placeholder: "Що для вас найважливіше" },
+              { id: "fixedDeadlines", label: "Чи є фіксовані дедлайни?", placeholder: "Наприклад: запуск до події" },
+              { id: "stagedExecution", label: "Чи можливе поетапне виконання?", placeholder: "Чи готові запускати частинами (MVP)" },
+              { id: "additionalConstraints", label: "Додаткові обмеження", placeholder: "Фактори, що впливають на реалізацію" },
+            ].map((field) => (
+              <div key={field.id}>
+                <label className={labelClass}>{field.label} <span className="text-red-500">*</span></label>
+                <textarea
+                  {...register(field.id as keyof BriefFormData)}
+                  rows={3}
+                  placeholder={field.placeholder}
+                  className={`${inputClass} min-h-[100px] ${errors[field.id as keyof BriefFormData] ? "border-red-500" : ""}`}
+                />
+                {errors[field.id as keyof BriefFormData] && (
+                  <p className={errorClass}>{errors[field.id as keyof BriefFormData]?.message}</p>
+                )}
+              </div>
+            ))}
           </div>
         )}
 
         {currentStep === 6 && (
-          <div className="space-y-6 max-w-[750px] mx-auto">
+          <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-900">Додатково</h2>
             <div>
-              <label className={labelClass}>Коментарі <span className="text-red-500">*</span></label>
+              <label className={labelClass}>Додаткові коментарі <span className="text-red-500">*</span></label>
               <textarea
                 {...register("comments")}
                 rows={5}
-                placeholder="Додаткова інформація, побажання або деталі, які ви хочете уточнити"
-                className={`${inputClass} min-h-[140px] resize-vertical`}
+                placeholder="Додаткова інформація, побажання або деталі"
+                className={`${inputClass} min-h-[140px] ${errors.comments ? "border-red-500" : ""}`}
               />
-              {errors.comments && (
-                <p className="text-red-500 text-sm mt-1">{errors.comments.message as string}</p>
-              )}
+              {errors.comments && <p className={errorClass}>{errors.comments.message}</p>}
             </div>
-          </div>
-        )}
-
-        {currentStep === steps.length && (
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-500">
-              Натискаючи кнопку «Відправити», ви погоджуєтесь на обробку наданої інформації.
-            </p>
           </div>
         )}
 
         {submitError && (
           <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl">
-            Не вдалося відправити форму. Спробуйте ще раз або перевірте введені дані.
+            {submitError}
           </div>
         )}
 
@@ -831,8 +445,8 @@ export default function BriefForm() {
           {currentStep < steps.length ? (
             <button
               type="button"
-              onClick={(e) => { e.preventDefault(); handleNext(); }}
-              className="px-8 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-all duration-200 shadow-lg shadow-blue-600/25 hover:shadow-xl hover:shadow-blue-600/30"
+              onClick={handleNext}
+              className="px-8 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-all duration-200 shadow-lg shadow-blue-600/25"
             >
               Далі
             </button>
@@ -840,9 +454,9 @@ export default function BriefForm() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-8 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-all duration-200 shadow-lg shadow-green-600/25 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-8 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-all duration-200 shadow-lg shadow-green-600/25 disabled:opacity-50"
             >
-              {isSubmitting ? "Відправка..." : "Відправити"}
+              {isSubmitting ? "Відправка..." : "Відправити бриф"}
             </button>
           )}
         </div>

@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { briefUpdateSchema } from "@/lib/validation";
 
 export async function GET(
   request: Request,
@@ -30,21 +29,24 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    const validatedData = briefUpdateSchema.parse(body);
+    
+    // Створюємо об'єкт для оновлення лише тих полів, що передані і існують в моделі
+    const updateData: any = {};
+    if (body.status) updateData.status = body.status;
+    if (body.companyName) updateData.companyName = body.companyName;
+    if (body.contactName) updateData.contactName = body.contactName;
+    if (body.email) updateData.email = body.email;
+    if (body.phone) updateData.phone = body.phone;
+    if (body.data) updateData.data = body.data;
 
     const brief = await prisma.brief.update({
       where: { id: params.id },
-      data: validatedData,
+      data: updateData,
     });
 
     return NextResponse.json(brief);
   } catch (error: any) {
-    if (error.name === "ZodError") {
-      return NextResponse.json(
-        { error: "Помилка валідації", details: error.errors },
-        { status: 400 }
-      );
-    }
+    console.error("PUT brief error:", error);
     return NextResponse.json(
       { error: "Помилка при оновленні брифу" },
       { status: 500 }
