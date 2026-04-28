@@ -120,7 +120,8 @@ export default function BriefForm() {
     }
   }, [watchedValues, currentStep]);
 
-  const handleNext = async () => {
+  const handleNext = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     const stepFields = requiredFieldsByStep[currentStep] || [];
     const isValid = await trigger(stepFields as any);
     
@@ -828,7 +829,7 @@ export default function BriefForm() {
           {currentStep < steps.length ? (
             <button
               type="button"
-              onClick={handleNext}
+              onClick={(e) => handleNext(e)}
               className="px-8 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-all duration-200 shadow-lg shadow-blue-600/25 hover:shadow-xl hover:shadow-blue-600/30"
             >
               Далі
