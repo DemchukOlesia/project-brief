@@ -25,6 +25,7 @@ export default function BriefForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const {
     register,
@@ -138,9 +139,10 @@ export default function BriefForm() {
     setCurrentStep(stepId);
   };
 
-  const onSubmit = async (data: BriefFormData) => {
+  const executeSubmit = async (data: BriefFormData) => {
     setIsSubmitting(true);
     setSubmitError("");
+    setShowConfirmModal(false);
 
     try {
       const response = await fetch("/api/brief", {
@@ -167,6 +169,16 @@ export default function BriefForm() {
     }
   };
 
+  const handleOpenConfirm = async () => {
+    // На 6 кроці теж може бути валідація, якщо додамо обов'язкові поля в майбутньому
+    const stepFields = requiredFieldsByStep[6] || [];
+    const isValid = await trigger(stepFields as any);
+    
+    if (isValid) {
+      setShowConfirmModal(true);
+    }
+  };
+
   if (submitSuccess) {
     return (
       <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-12 text-center">
@@ -179,7 +191,7 @@ export default function BriefForm() {
         <p className="text-gray-500 mb-6">Ваш бриф успішно відправлено. Ми зв&apos;яжемося з вами найближчим часом.</p>
         <button
           onClick={() => setSubmitSuccess(false)}
-          className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+          className="px-8 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-all duration-200"
         >
           Заповнити ще один бриф
         </button>
@@ -190,7 +202,40 @@ export default function BriefForm() {
   const progress = (currentStep / steps.length) * 100;
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-8 md:p-10">
+    <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-8 md:p-10 relative">
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">Надіслати бриф?</h3>
+            <p className="text-gray-500 mb-8 leading-relaxed">
+              Ви впевнені, що хочете надіслати заповнену інформацію? Після відправки ви не зможете її змінити самостійно.
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                type="button"
+                onClick={() => setShowConfirmModal(false)}
+                className="px-6 py-3 border border-gray-200 text-gray-600 rounded-2xl font-semibold hover:bg-gray-50 transition-all duration-200"
+              >
+                Ні, повернутись
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmit(executeSubmit)}
+                className="px-6 py-3 bg-blue-600 text-white rounded-2xl font-semibold hover:bg-blue-700 transition-all duration-200 shadow-lg shadow-blue-600/20"
+              >
+                Так, надіслати
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="mb-8">
         <div className="flex justify-between mb-3">
           {steps.map((step) => (
@@ -222,7 +267,7 @@ export default function BriefForm() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
         {currentStep === 1 && (
           <div className="space-y-5">
             <h2 className="text-xl font-semibold text-gray-900">Контактна інформація</h2>
@@ -415,7 +460,8 @@ export default function BriefForm() {
             </button>
           ) : (
             <button
-              type="submit"
+              type="button"
+              onClick={handleOpenConfirm}
               disabled={isSubmitting}
               className="px-8 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-all duration-200 shadow-lg shadow-green-600/25 disabled:opacity-50"
             >
