@@ -85,7 +85,7 @@ export default function BriefForm() {
       try {
         const parsed = JSON.parse(savedData);
         Object.keys(parsed).forEach((key) => {
-          if (key !== 'currentStep' && parsed[key]) {
+          if (key !== 'currentStep' && parsed[key] !== undefined) {
             setValue(key as keyof BriefFormData, parsed[key]);
           }
         });
@@ -107,17 +107,24 @@ export default function BriefForm() {
     }
   }, [watchedValues, currentStep]);
 
-  const handleNext = async () => {
+  const handleNext = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    console.log("handleNext called for step:", currentStep);
+    
     const stepFields = requiredFieldsByStep[currentStep] || [];
     const isValid = await trigger(stepFields as any, { shouldFocus: true });
     
     if (!isValid) {
+      console.log("Validation failed for step:", currentStep);
       return;
     }
+    
+    console.log("Moving to step:", currentStep + 1);
     setCurrentStep((prev) => Math.min(prev + 1, steps.length));
   };
 
-  const handlePrev = () => {
+  const handlePrev = (e: React.MouseEvent) => {
+    e.preventDefault();
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
@@ -140,6 +147,7 @@ export default function BriefForm() {
   };
 
   const executeSubmit = async (data: BriefFormData) => {
+    console.log("Executing final submit...");
     setIsSubmitting(true);
     setSubmitError("");
     setShowConfirmModal(false);
@@ -157,6 +165,7 @@ export default function BriefForm() {
         throw new Error(result.error || "Помилка при відправці форми");
       }
 
+      console.log("Submit successful");
       localStorage.removeItem("brief-form-data");
       reset();
       setCurrentStep(1);
@@ -169,8 +178,11 @@ export default function BriefForm() {
     }
   };
 
-  const handleOpenConfirm = async () => {
-    // На 6 кроці теж може бути валідація, якщо додамо обов'язкові поля в майбутньому
+  const handleOpenConfirm = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (currentStep !== 6) return;
+
+    console.log("Opening confirmation modal...");
     const stepFields = requiredFieldsByStep[6] || [];
     const isValid = await trigger(stepFields as any);
     
