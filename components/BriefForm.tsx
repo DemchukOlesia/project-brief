@@ -10,9 +10,9 @@ const steps = [
   { id: 1, name: "Контакти", requiredNote: "* Обов'язкові поля" },
   { id: 2, name: "Проєкт", requiredNote: "* Обов'язкові поля" },
   { id: 3, name: "Функціонал", requiredNote: "* Обов'язкові поля" },
-  { id: 4, name: "Дизайн", requiredNote: "" },
+  { id: 4, name: "Дизайн", requiredNote: "* Обов'язкові поля" },
   { id: 5, name: "Обмеження", requiredNote: "* Обов'язкові поля" },
-  { id: 6, name: "Додатково", requiredNote: "" },
+  { id: 6, name: "Додатково", requiredNote: "* Обов'язкові поля" },
 ];
 
 const projectTypes = [
@@ -497,13 +497,16 @@ export default function BriefForm() {
             </div>
 
             <div>
-              <label className={labelClass}>Які очікування від результату?</label>
+              <label className={labelClass}>Які очікування від результату? <span className="text-red-500">*</span></label>
               <textarea
                 {...register("expectations")}
                 rows={3}
                 placeholder="Яким ви бачите кінцевий продукт"
                 className={`${inputClass} min-h-[100px] resize-vertical`}
               />
+              {errors.expectations && (
+                <p className="text-red-500 text-sm mt-1">{errors.expectations.message as string}</p>
+              )}
             </div>
           </div>
         )}
@@ -780,13 +783,16 @@ export default function BriefForm() {
           <div className="space-y-6 max-w-[750px] mx-auto">
             <h2 className="text-xl font-semibold text-gray-900">Додатково</h2>
             <div>
-              <label className={labelClass}>Коментарі</label>
+              <label className={labelClass}>Коментарі <span className="text-red-500">*</span></label>
               <textarea
                 {...register("comments")}
                 rows={5}
                 placeholder="Додаткова інформація, побажання або деталі, які ви хочете уточнити"
                 className={`${inputClass} min-h-[140px] resize-vertical`}
               />
+              {errors.comments && (
+                <p className="text-red-500 text-sm mt-1">{errors.comments.message as string}</p>
+              )}
             </div>
           </div>
         )}
