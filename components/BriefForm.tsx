@@ -398,43 +398,63 @@ export default function BriefForm() {
             </div>
 
             <div>
-              <label className={labelClass}>Яку цінність отримає користувач?</label>
+              <label className={labelClass}>Яку цінність отримає користувач? <span className="text-red-500">*</span></label>
               <textarea
                 {...register("valueProposition")}
                 rows={4}
                 placeholder="Чому люди будуть користуватися вашим продуктом, яку користь він дає"
-                className={`${inputClass} min-h-[120px] resize-vertical`}
+                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical ${
+                  errors.valueProposition ? "border-red-500" : "border-gray-200"
+                }`}
               />
+              {errors.valueProposition && (
+                <p className="text-red-500 text-sm mt-1">{errors.valueProposition.message as string}</p>
+              )}
             </div>
 
             <div>
-              <label className={labelClass}>Хто ваша цільова аудиторія?</label>
+              <label className={labelClass}>Хто ваша цільова аудиторія? <span className="text-red-500">*</span></label>
               <textarea
                 {...register("targetAudience")}
                 rows={4}
                 placeholder="Опишіть користувачів: вік, інтереси, тип (B2B, B2C тощо)"
-                className={`${inputClass} min-h-[120px] resize-vertical`}
+                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical ${
+                  errors.targetAudience ? "border-red-500" : "border-gray-200"
+                }`}
               />
+              {errors.targetAudience && (
+                <p className="text-red-500 text-sm mt-1">{errors.targetAudience.message as string}</p>
+              )}
             </div>
 
             <div>
-              <label className={labelClass}>У чому унікальність вашого проєкту?</label>
+              <label className={labelClass}>У чому унікальність вашого проєкту? <span className="text-red-500">*</span></label>
               <textarea
                 {...register("uniqueness")}
                 rows={3}
                 placeholder="Чим ваш продукт відрізняється від інших або конкурентів"
-                className={`${inputClass} min-h-[100px] resize-vertical`}
+                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[100px] resize-vertical ${
+                  errors.uniqueness ? "border-red-500" : "border-gray-200"
+                }`}
               />
+              {errors.uniqueness && (
+                <p className="text-red-500 text-sm mt-1">{errors.uniqueness.message as string}</p>
+              )}
             </div>
 
             <div>
-              <label className={labelClass}>Чи є вже подібні рішення або конкуренти?</label>
+              <label className={labelClass}>Чи є вже подібні рішення або конкуренти? <span className="text-red-500">*</span></label>
               <textarea
                 {...register("competitors")}
                 rows={3}
                 placeholder="Наведіть приклади конкурентів або схожих продуктів"
-                className={`${inputClass} min-h-[100px] resize-vertical`}
+                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[100px] resize-vertical ${
+                  errors.competitors ? "border-red-500" : "border-gray-200"
+                }`}
               />
+              {errors.competitors && (
+                <p className="text-red-500 text-sm mt-1">{errors.competitors.message as string}</p>
+              )}
             </div>
 
             <div>
@@ -567,13 +587,19 @@ export default function BriefForm() {
             <h2 className="text-xl font-semibold text-gray-900">Дизайн та стиль</h2>
             
             <div>
-              <label className={labelClass}>Який стиль дизайну вам подобається?</label>
+              <label className={labelClass}>Який стиль дизайну вам подобається? <span className="text-red-500">*</span></label>
               <textarea
                 {...register("designStyle")}
                 rows={4}
                 placeholder="Наприклад: мінімалізм, сучасний, корпоративний, яскравий, темний"
-                className={`${inputClass} min-h-[120px] resize-vertical`}
+                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[120px] resize-vertical ${
+                  errors.designStyle ? "border-red-500" : "border-gray-200"
+                }`}
               />
+              {errors.designStyle && (
+                <p className="text-red-500 text-sm mt-1">{errors.designStyle.message as string}</p>
+              )}
+            </div>
             </div>
 
             <div>
