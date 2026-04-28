@@ -120,10 +120,12 @@ export default function BriefForm() {
     }
   }, [watchedValues, currentStep]);
 
-  const handleNext = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  const handleNext = async () => {
+    console.log('[handleNext] called, currentStep:', currentStep);
     const stepFields = requiredFieldsByStep[currentStep] || [];
-    const isValid = await trigger(stepFields as any);
+    console.log('[handleNext] validating fields:', stepFields);
+    const isValid = await trigger(stepFields as any, { shouldFocus: true });
+    console.log('[handleNext] validation result:', isValid);
     
     if (!isValid) {
       return;
@@ -829,7 +831,7 @@ export default function BriefForm() {
           {currentStep < steps.length ? (
             <button
               type="button"
-              onClick={(e) => handleNext(e)}
+              onClick={(e) => { e.preventDefault(); handleNext(); }}
               className="px-8 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-all duration-200 shadow-lg shadow-blue-600/25 hover:shadow-xl hover:shadow-blue-600/30"
             >
               Далі
