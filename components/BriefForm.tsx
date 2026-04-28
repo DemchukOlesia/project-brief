@@ -7,12 +7,12 @@ import { useRouter } from "next/navigation";
 import { briefSchema, requiredFieldsByStep, BriefFormData } from "@/lib/validation";
 
 const steps = [
-  { id: 1, name: "Контакти", requiredNote: "* Обов'язкові поля" },
-  { id: 2, name: "Проєкт", requiredNote: "* Обов'язкові поля" },
-  { id: 3, name: "Функціонал", requiredNote: "* Обов'язкові поля" },
-  { id: 4, name: "Дизайн", requiredNote: "* Обов'язкові поля" },
-  { id: 5, name: "Обмеження", requiredNote: "* Обов'язкові поля" },
-  { id: 6, name: "Додатково", requiredNote: "* Обов'язкові поля" },
+  { id: 1, name: "Контакти" },
+  { id: 2, name: "Проєкт" },
+  { id: 3, name: "Функціонал" },
+  { id: 4, name: "Дизайн" },
+  { id: 5, name: "Обмеження" },
+  { id: 6, name: "Додатково" },
 ];
 
 const inputClass = "w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200";
@@ -25,7 +25,6 @@ export default function BriefForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -89,9 +88,6 @@ export default function BriefForm() {
             setValue(key as keyof BriefFormData, parsed[key]);
           }
         });
-        if (parsed.currentStep) {
-          // currentStep logic handled separately to avoid jump on initial load
-        }
       } catch (e) {
         console.error("Failed to parse saved form data", e);
       }
@@ -130,7 +126,6 @@ export default function BriefForm() {
       return;
     }
     
-    // Перевірка всіх попередніх кроків до того, на який хочемо перейти
     for (let s = 1; s < stepId; s++) {
       const stepFields = requiredFieldsByStep[s] || [];
       const isValid = await trigger(stepFields as any);
@@ -221,7 +216,7 @@ export default function BriefForm() {
         <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
           <div className="h-full bg-blue-600 rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
         </div>
-        <p className="text-center mt-3 text-sm text-gray-500">
+        <p className="text-center mt-3 text-sm text-gray-500 font-medium uppercase tracking-wide">
           Крок {currentStep} з {steps.length}: {steps[currentStep - 1].name}
           <span className="ml-2 text-red-500">* Обов&apos;язкові поля</span>
         </p>
@@ -234,59 +229,32 @@ export default function BriefForm() {
             <div className="grid md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label className={labelClass}>Назва компанії <span className="text-red-500">*</span></label>
-                <input
-                  {...register("companyName")}
-                  placeholder="ТОВ &quot;Компанія&quot;"
-                  className={`${inputClass} ${errors.companyName ? "border-red-500" : ""}`}
-                />
+                <input {...register("companyName")} placeholder="ТОВ &quot;Компанія&quot;" className={`${inputClass} ${errors.companyName ? "border-red-500" : ""}`} />
                 {errors.companyName && <p className={errorClass}>{errors.companyName.message}</p>}
               </div>
               <div className="md:col-span-2">
                 <label className={labelClass}>ПІБ контактної особи <span className="text-red-500">*</span></label>
-                <input
-                  {...register("contactName")}
-                  placeholder="Іван Іванов"
-                  className={`${inputClass} ${errors.contactName ? "border-red-500" : ""}`}
-                />
+                <input {...register("contactName")} placeholder="Іван Іванов" className={`${inputClass} ${errors.contactName ? "border-red-500" : ""}`} />
                 {errors.contactName && <p className={errorClass}>{errors.contactName.message}</p>}
               </div>
               <div>
                 <label className={labelClass}>Номер телефону <span className="text-red-500">*</span></label>
-                <input
-                  {...register("phone")}
-                  type="tel"
-                  placeholder="+380XXXXXXXXX"
-                  className={`${inputClass} ${errors.phone ? "border-red-500" : ""}`}
-                />
+                <input {...register("phone")} type="tel" placeholder="+380XXXXXXXXX" className={`${inputClass} ${errors.phone ? "border-red-500" : ""}`} />
                 {errors.phone && <p className={errorClass}>{errors.phone.message}</p>}
               </div>
               <div>
                 <label className={labelClass}>Email <span className="text-red-500">*</span></label>
-                <input
-                  {...register("email")}
-                  type="email"
-                  placeholder="email@company.com"
-                  className={`${inputClass} ${errors.email ? "border-red-500" : ""}`}
-                />
+                <input {...register("email")} type="email" placeholder="email@company.com" className={`${inputClass} ${errors.email ? "border-red-500" : ""}`} />
                 {errors.email && <p className={errorClass}>{errors.email.message}</p>}
               </div>
               <div>
                 <label className={labelClass}>Зручний спосіб зв&apos;язку <span className="text-red-500">*</span></label>
-                <input
-                  {...register("contactMethod")}
-                  placeholder="Телефон, Telegram, email"
-                  className={`${inputClass} ${errors.contactMethod ? "border-red-500" : ""}`}
-                />
+                <input {...register("contactMethod")} placeholder="Телефон, Telegram, email" className={`${inputClass} ${errors.contactMethod ? "border-red-500" : ""}`} />
                 {errors.contactMethod && <p className={errorClass}>{errors.contactMethod.message}</p>}
               </div>
               <div>
-                <label className={labelClass}>Зручний час для зв&apos;язку <span className="text-red-500">*</span></label>
-                <input
-                  {...register("contactTime")}
-                  placeholder="10:00–18:00"
-                  className={`${inputClass} ${errors.contactTime ? "border-red-500" : ""}`}
-                />
-                {errors.contactTime && <p className={errorClass}>{errors.contactTime.message}</p>}
+                <label className={labelClass}>Зручний час для зв&apos;язку</label>
+                <input {...register("contactTime")} placeholder="10:00–18:00" className={inputClass} />
               </div>
             </div>
           </div>
@@ -296,26 +264,25 @@ export default function BriefForm() {
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-900">Ідея та цілі проєкту</h2>
             {[
-              { id: "features", label: "Опишіть ідею вашого проєкту", placeholder: "Що це за продукт, для чого він створюється" },
-              { id: "problem", label: "Яку проблему вирішує проєкт?", placeholder: "Яка потреба існує зараз" },
-              { id: "goal", label: "Яка основна мета проєкту?", placeholder: "Результат, якого хочете досягти" },
-              { id: "valueProposition", label: "Яку цінність отримає користувач?", placeholder: "Чому люди будуть користуватися продуктом" },
-              { id: "targetAudience", label: "Хто ваша цільова аудиторія?", placeholder: "Вік, інтереси, тип" },
-              { id: "uniqueness", label: "У чому унікальність вашого проєкту?", placeholder: "Чим відрізняється від інших" },
-              { id: "competitors", label: "Чи є подібні рішення або конкуренти?", placeholder: "Приклади схожих продуктів" },
-              { id: "existingWork", label: "Чи є у вас вже щось готове?", placeholder: "Ідея, прототип, дизайн" },
-              { id: "references", label: "Посилання на приклади (референси)", placeholder: "Сайти або додатки, які вам подобаються" },
-              { id: "expectations", label: "Які очікування від результату?", placeholder: "Яким ви бачите кінцевий продукт" },
+              { id: "features", label: "Опишіть ідею вашого проєкту", req: true },
+              { id: "problem", label: "Яку проблему вирішує проєкт?", req: true },
+              { id: "goal", label: "Яка основна мета проєкту?", req: true },
+              { id: "valueProposition", label: "Яку цінність отримає користувач?", req: true },
+              { id: "targetAudience", label: "Хто ваша цільова аудиторія?", req: true },
+              { id: "uniqueness", label: "У чому унікальність вашого проєкту?", req: true },
+              { id: "competitors", label: "Чи є подібні рішення або конкуренти?", req: true },
+              { id: "existingWork", label: "Чи є у вас вже щось готове?", req: true },
+              { id: "references", label: "Посилання на приклади (референси)", req: true },
+              { id: "expectations", label: "Які очікування від результату?", req: false },
             ].map((field) => (
               <div key={field.id}>
-                <label className={labelClass}>{field.label} <span className="text-red-500">*</span></label>
+                <label className={labelClass}>{field.label} {field.req && <span className="text-red-500">*</span>}</label>
                 <textarea
                   {...register(field.id as keyof BriefFormData)}
                   rows={3}
-                  placeholder={field.placeholder}
-                  className={`${inputClass} min-h-[100px] ${errors[field.id as keyof BriefFormData] ? "border-red-500" : ""}`}
+                  className={`${inputClass} min-h-[100px] ${field.req && errors[field.id as keyof BriefFormData] ? "border-red-500" : ""}`}
                 />
-                {errors[field.id as keyof BriefFormData] && (
+                {field.req && errors[field.id as keyof BriefFormData] && (
                   <p className={errorClass}>{errors[field.id as keyof BriefFormData]?.message}</p>
                 )}
               </div>
@@ -327,24 +294,23 @@ export default function BriefForm() {
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-900">Функціонал проєкту</h2>
             {[
-              { id: "functionalModules", label: "Які функціональні модулі повинні бути?", placeholder: "Реєстрація, каталог, профіль, замовлення" },
-              { id: "authSystem", label: "Система доступу (реєстрація, ролі)", placeholder: "Опишіть рівні доступу" },
-              { id: "adminPanel", label: "Що має бути в адмін-панелі?", placeholder: "Дії та дані для адміністратора" },
-              { id: "integrations", label: "Які інтеграції необхідні?", placeholder: "Платежі, API, CRM" },
-              { id: "automation", label: "Автоматичні процеси", placeholder: "Дії, що запускають процеси" },
-              { id: "notifications", label: "Система сповіщень", placeholder: "Кому і коли надсилати" },
-              { id: "search", label: "Пошук та фільтрація", placeholder: "Що саме потрібно знаходити" },
-              { id: "mvpFeatures", label: "Критично важливий функціонал (MVP)", placeholder: "Що реалізувати в першу чергу" },
+              { id: "functionalModules", label: "Які функціональні модулі повинні бути?", req: true },
+              { id: "authSystem", label: "Система доступу (реєстрація, ролі)", req: true },
+              { id: "adminPanel", label: "Що має бути в адмін-панелі?", req: true },
+              { id: "integrations", label: "Які інтеграції необхідні?", req: true },
+              { id: "automation", label: "Автоматичні процеси", req: true },
+              { id: "notifications", label: "Система сповіщень", req: true },
+              { id: "search", label: "Пошук та фільтрація", req: true },
+              { id: "mvpFeatures", label: "Критично важливий функціонал (MVP)", req: false },
             ].map((field) => (
               <div key={field.id}>
-                <label className={labelClass}>{field.label} <span className="text-red-500">*</span></label>
+                <label className={labelClass}>{field.label} {field.req && <span className="text-red-500">*</span>}</label>
                 <textarea
                   {...register(field.id as keyof BriefFormData)}
                   rows={3}
-                  placeholder={field.placeholder}
-                  className={`${inputClass} min-h-[100px] ${errors[field.id as keyof BriefFormData] ? "border-red-500" : ""}`}
+                  className={`${inputClass} min-h-[100px] ${field.req && errors[field.id as keyof BriefFormData] ? "border-red-500" : ""}`}
                 />
-                {errors[field.id as keyof BriefFormData] && (
+                {field.req && errors[field.id as keyof BriefFormData] && (
                   <p className={errorClass}>{errors[field.id as keyof BriefFormData]?.message}</p>
                 )}
               </div>
@@ -356,22 +322,21 @@ export default function BriefForm() {
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-900">Дизайн та стиль</h2>
             {[
-              { id: "designStyle", label: "Який стиль дизайну вам подобається?", placeholder: "Мінімалізм, сучасний, темний" },
-              { id: "brandStyle", label: "Фірмовий стиль або брендбук", placeholder: "Чи є логотип, кольори, шрифти" },
-              { id: "colors", label: "Кольори або настрій дизайну", placeholder: "Енергійний, строгий, технологічний" },
-              { id: "designAttention", label: "Рівень уваги до дизайну", placeholder: "Базовий, середній, преміум" },
-              { id: "designRestrictions", label: "Обмеження або вимоги", placeholder: "Корпоративні стандарти" },
-              { id: "dislikedDesign", label: "Що вам НЕ подобається?", placeholder: "Приклади речей, яких уникати" },
+              { id: "designStyle", label: "Який стиль дизайну вам подобається?", req: true },
+              { id: "brandStyle", label: "Фірмовий стиль або брендбук", req: true },
+              { id: "colors", label: "Кольори або настрій дизайну", req: true },
+              { id: "designAttention", label: "Рівень уваги до дизайну", req: true },
+              { id: "designRestrictions", label: "Обмеження або вимоги", req: true },
+              { id: "dislikedDesign", label: "Що вам НЕ подобається?", req: false },
             ].map((field) => (
               <div key={field.id}>
-                <label className={labelClass}>{field.label} <span className="text-red-500">*</span></label>
+                <label className={labelClass}>{field.label} {field.req && <span className="text-red-500">*</span>}</label>
                 <textarea
                   {...register(field.id as keyof BriefFormData)}
                   rows={3}
-                  placeholder={field.placeholder}
-                  className={`${inputClass} min-h-[100px] ${errors[field.id as keyof BriefFormData] ? "border-red-500" : ""}`}
+                  className={`${inputClass} min-h-[100px] ${field.req && errors[field.id as keyof BriefFormData] ? "border-red-500" : ""}`}
                 />
-                {errors[field.id as keyof BriefFormData] && (
+                {field.req && errors[field.id as keyof BriefFormData] && (
                   <p className={errorClass}>{errors[field.id as keyof BriefFormData]?.message}</p>
                 )}
               </div>
@@ -383,22 +348,21 @@ export default function BriefForm() {
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-900">Бюджет та терміни</h2>
             {[
-              { id: "budget", label: "Орієнтовний бюджет проєкту", placeholder: "Бажаний бюджет або діапазон" },
-              { id: "deadline", label: "Бажані терміни реалізації", placeholder: "Коли хочете отримати продукт" },
-              { id: "priority", label: "Швидкість, якість чи бюджет?", placeholder: "Що для вас найважливіше" },
-              { id: "fixedDeadlines", label: "Чи є фіксовані дедлайни?", placeholder: "Наприклад: запуск до події" },
-              { id: "stagedExecution", label: "Чи можливе поетапне виконання?", placeholder: "Чи готові запускати частинами (MVP)" },
-              { id: "additionalConstraints", label: "Додаткові обмеження", placeholder: "Фактори, що впливають на реалізацію" },
+              { id: "budget", label: "Орієнтовний бюджет проєкту", req: true },
+              { id: "deadline", label: "Бажані терміни реалізації", req: true },
+              { id: "priority", label: "Швидкість, якість чи бюджет?", req: true },
+              { id: "fixedDeadlines", label: "Чи є фіксовані дедлайни?", req: true },
+              { id: "stagedExecution", label: "Чи можливе поетапне виконання?", req: true },
+              { id: "additionalConstraints", label: "Додаткові обмеження", req: false },
             ].map((field) => (
               <div key={field.id}>
-                <label className={labelClass}>{field.label} <span className="text-red-500">*</span></label>
+                <label className={labelClass}>{field.label} {field.req && <span className="text-red-500">*</span>}</label>
                 <textarea
                   {...register(field.id as keyof BriefFormData)}
                   rows={3}
-                  placeholder={field.placeholder}
-                  className={`${inputClass} min-h-[100px] ${errors[field.id as keyof BriefFormData] ? "border-red-500" : ""}`}
+                  className={`${inputClass} min-h-[100px] ${field.req && errors[field.id as keyof BriefFormData] ? "border-red-500" : ""}`}
                 />
-                {errors[field.id as keyof BriefFormData] && (
+                {field.req && errors[field.id as keyof BriefFormData] && (
                   <p className={errorClass}>{errors[field.id as keyof BriefFormData]?.message}</p>
                 )}
               </div>
@@ -410,14 +374,13 @@ export default function BriefForm() {
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-900">Додатково</h2>
             <div>
-              <label className={labelClass}>Додаткові коментарі <span className="text-red-500">*</span></label>
+              <label className={labelClass}>Додаткові коментарі</label>
               <textarea
                 {...register("comments")}
                 rows={5}
                 placeholder="Додаткова інформація, побажання або деталі"
-                className={`${inputClass} min-h-[140px] ${errors.comments ? "border-red-500" : ""}`}
+                className={`${inputClass} min-h-[140px]`}
               />
-              {errors.comments && <p className={errorClass}>{errors.comments.message}</p>}
             </div>
           </div>
         )}

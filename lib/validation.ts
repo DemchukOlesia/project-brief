@@ -1,57 +1,59 @@
 import { z } from "zod";
 
+const requiredMsg = "Це поле обов'язкове, заповніть його, будь ласка";
+
 export const briefSchema = z.object({
   // Step 1: Contacts
-  companyName: z.string().min(1, "Обов'язкове поле"),
-  contactName: z.string().min(1, "Обов'язкове поле"),
-  phone: z.string().min(1, "Обов'язкове поле"),
-  email: z.string().min(1, "Обов'язкове поле").email("Невірний email"),
-  contactMethod: z.string().min(1, "Обов'язкове поле"),
+  companyName: z.string().min(1, requiredMsg),
+  contactName: z.string().min(1, requiredMsg),
+  phone: z.string().min(1, requiredMsg),
+  email: z.string().min(1, requiredMsg).email("Невірний email"),
+  contactMethod: z.string().min(1, requiredMsg),
   messenger: z.string().optional(),
-  contactTime: z.string().min(1, "Обов'язкове поле"),
+  contactTime: z.string().optional(), // Останнє поле кроку 1 - тепер необов'язкове
   
   // Step 2: Project
-  features: z.string().min(5, "Будь ласка, опишіть ідею детальніше"),
-  problem: z.string().min(5, "Опишіть проблему, яку вирішує проєкт"),
-  goal: z.string().min(5, "Вкажіть мету проєкту"),
-  valueProposition: z.string().min(5, "Опишіть цінність для користувача"),
-  targetAudience: z.string().min(5, "Опишіть вашу аудиторію"),
-  uniqueness: z.string().min(5, "Вкажіть унікальність проєкту"),
-  competitors: z.string().min(5, "Наведіть приклади конкурентів"),
-  existingWork: z.string().min(1, "Вкажіть, чи є напрацювання"),
-  references: z.string().min(1, "Надайте посилання на референси"),
-  expectations: z.string().min(5, "Опишіть ваші очікування"),
+  features: z.string().min(1, requiredMsg),
+  problem: z.string().min(1, requiredMsg),
+  goal: z.string().min(1, requiredMsg),
+  valueProposition: z.string().min(1, requiredMsg),
+  targetAudience: z.string().min(1, requiredMsg),
+  uniqueness: z.string().min(1, requiredMsg),
+  competitors: z.string().min(1, requiredMsg),
+  existingWork: z.string().min(1, requiredMsg),
+  references: z.string().min(1, requiredMsg),
+  expectations: z.string().optional(), // Останнє поле кроку 2 - тепер необов'язкове
 
   // Step 3: Functional
-  functionalModules: z.string().min(5, "Опишіть необхідні модулі"),
-  authSystem: z.string().min(5, "Опишіть систему доступу"),
-  adminPanel: z.string().min(5, "Опишіть вимоги до адмін-панелі"),
-  integrations: z.string().min(5, "Вкажіть необхідні інтеграції"),
-  automation: z.string().min(5, "Опишіть автоматичні процеси"),
-  notifications: z.string().min(5, "Вкажіть типи сповіщень"),
-  search: z.string().min(5, "Опишіть роботу пошуку та фільтрів"),
-  mvpFeatures: z.string().min(5, "Виділіть критичні функції для MVP"),
+  functionalModules: z.string().min(1, requiredMsg),
+  authSystem: z.string().min(1, requiredMsg),
+  adminPanel: z.string().min(1, requiredMsg),
+  integrations: z.string().min(1, requiredMsg),
+  automation: z.string().min(1, requiredMsg),
+  notifications: z.string().min(1, requiredMsg),
+  search: z.string().min(1, requiredMsg),
+  mvpFeatures: z.string().optional(), // Останнє поле кроку 3 - тепер необов'язкове
 
   // Step 4: Design
-  designStyle: z.string().min(5, "Опишіть бажаний стиль"),
-  brandStyle: z.string().min(1, "Вкажіть наявність фірмового стилю"),
-  colors: z.string().min(5, "Опишіть кольорову гаму або настрій"),
-  designAttention: z.string().min(1, "Вкажіть рівень уваги до дизайну"),
-  designRestrictions: z.string().min(1, "Вкажіть обмеження в дизайні"),
-  dislikedDesign: z.string().min(5, "Опишіть, що вам не подобається"),
+  designStyle: z.string().min(1, requiredMsg),
+  brandStyle: z.string().min(1, requiredMsg),
+  colors: z.string().min(1, requiredMsg),
+  designAttention: z.string().min(1, requiredMsg),
+  designRestrictions: z.string().min(1, requiredMsg),
+  dislikedDesign: z.string().optional(), // Останнє поле кроку 4 - тепер необов'язкове
 
   // Step 5: Constraints
-  budget: z.string().min(1, "Вкажіть орієнтовний бюджет"),
-  deadline: z.string().min(1, "Вкажіть бажані терміни"),
-  priority: z.string().min(1, "Оберіть пріоритет"),
-  fixedDeadlines: z.string().min(1, "Вкажіть наявність фіксованих дат"),
-  stagedExecution: z.string().min(1, "Вкажіть можливість поетапного запуску"),
-  additionalConstraints: z.string().min(1, "Вкажіть додаткові обмеження"),
+  budget: z.string().min(1, requiredMsg),
+  deadline: z.string().min(1, requiredMsg),
+  priority: z.string().min(1, requiredMsg),
+  fixedDeadlines: z.string().min(1, requiredMsg),
+  stagedExecution: z.string().min(1, requiredMsg),
+  additionalConstraints: z.string().optional(), // Останнє поле кроку 5 - тепер необов'язкове
 
   // Step 6: Additional
-  comments: z.string().min(1, "Будь ласка, залиште коментар або напишіть 'немає'"),
+  comments: z.string().optional(), // Останнє поле кроку 6 - тепер необов'язкове
   
-  // Existing fields (keep for compatibility if needed, but they might be redundant now)
+  // Existing fields
   projectType: z.string().optional(),
   needAuth: z.boolean().optional().default(false),
   needApi: z.boolean().optional().default(false),
@@ -60,17 +62,13 @@ export const briefSchema = z.object({
 
 export type BriefFormData = z.infer<typeof briefSchema>;
 
-export const briefUpdateSchema = briefSchema.partial();
-
-export type BriefUpdateData = z.infer<typeof briefUpdateSchema>;
-
 export const requiredFieldsByStep: Record<number, (keyof BriefFormData)[]> = {
-  1: ["companyName", "contactName", "phone", "email", "contactMethod", "contactTime"],
-  2: ["features", "problem", "goal", "valueProposition", "targetAudience", "uniqueness", "competitors", "existingWork", "references", "expectations"],
-  3: ["functionalModules", "authSystem", "adminPanel", "integrations", "automation", "notifications", "search", "mvpFeatures"],
-  4: ["designStyle", "brandStyle", "colors", "designAttention", "designRestrictions", "dislikedDesign"],
-  5: ["budget", "deadline", "priority", "fixedDeadlines", "stagedExecution", "additionalConstraints"],
-  6: ["comments"],
+  1: ["companyName", "contactName", "phone", "email", "contactMethod"],
+  2: ["features", "problem", "goal", "valueProposition", "targetAudience", "uniqueness", "competitors", "existingWork", "references"],
+  3: ["functionalModules", "authSystem", "adminPanel", "integrations", "automation", "notifications", "search"],
+  4: ["designStyle", "brandStyle", "colors", "designAttention", "designRestrictions"],
+  5: ["budget", "deadline", "priority", "fixedDeadlines", "stagedExecution"],
+  6: [],
 };
 
 export const stepFieldOrder: Record<number, string[]> = {
