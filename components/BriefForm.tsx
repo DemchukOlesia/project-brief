@@ -63,6 +63,7 @@ export default function BriefForm() {
       notifications: "",
       search: "",
       mvpFeatures: "",
+      excludedFeatures: "",
       designStyle: "",
       brandStyle: "",
       colors: "",
@@ -109,17 +110,12 @@ export default function BriefForm() {
 
   const handleNext = async (e: React.MouseEvent) => {
     e.preventDefault();
-    console.log("handleNext called for step:", currentStep);
-    
     const stepFields = requiredFieldsByStep[currentStep] || [];
     const isValid = await trigger(stepFields as any, { shouldFocus: true });
     
     if (!isValid) {
-      console.log("Validation failed for step:", currentStep);
       return;
     }
-    
-    console.log("Moving to step:", currentStep + 1);
     setCurrentStep((prev) => Math.min(prev + 1, steps.length));
   };
 
@@ -147,7 +143,6 @@ export default function BriefForm() {
   };
 
   const executeSubmit = async (data: BriefFormData) => {
-    console.log("Executing final submit...");
     setIsSubmitting(true);
     setSubmitError("");
     setShowConfirmModal(false);
@@ -165,7 +160,6 @@ export default function BriefForm() {
         throw new Error(result.error || "Помилка при відправці форми");
       }
 
-      console.log("Submit successful");
       localStorage.removeItem("brief-form-data");
       reset();
       setCurrentStep(1);
@@ -182,7 +176,6 @@ export default function BriefForm() {
     e.preventDefault();
     if (currentStep !== 6) return;
 
-    console.log("Opening confirmation modal...");
     const stepFields = requiredFieldsByStep[6] || [];
     const isValid = await trigger(stepFields as any);
     
@@ -358,7 +351,8 @@ export default function BriefForm() {
               { id: "automation", label: "Автоматичні процеси", req: true },
               { id: "notifications", label: "Система сповіщень", req: true },
               { id: "search", label: "Пошук та фільтрація", req: true },
-              { id: "mvpFeatures", label: "Критично важливий функціонал (MVP)", req: false },
+              { id: "mvpFeatures", label: "Критично важливий функціонал (MVP)", req: true },
+              { id: "excludedFeatures", label: "Які функції НЕ входять у цей проєкт?", req: false },
             ].map((field) => (
               <div key={field.id}>
                 <label className={labelClass}>{field.label} {field.req && <span className="text-red-500">*</span>}</label>

@@ -10,7 +10,7 @@ export const briefSchema = z.object({
   email: z.string().min(1, requiredMsg).email("Невірний email"),
   contactMethod: z.string().min(1, requiredMsg),
   messenger: z.string().optional(),
-  contactTime: z.string().optional(), // Останнє поле кроку 1 - тепер необов'язкове
+  contactTime: z.string().optional(),
   
   // Step 2: Project
   features: z.string().min(1, requiredMsg),
@@ -22,7 +22,7 @@ export const briefSchema = z.object({
   competitors: z.string().min(1, requiredMsg),
   existingWork: z.string().min(1, requiredMsg),
   references: z.string().min(1, requiredMsg),
-  expectations: z.string().optional(), // Останнє поле кроку 2 - тепер необов'язкове
+  expectations: z.string().optional(),
 
   // Step 3: Functional
   functionalModules: z.string().min(1, requiredMsg),
@@ -32,7 +32,8 @@ export const briefSchema = z.object({
   automation: z.string().min(1, requiredMsg),
   notifications: z.string().min(1, requiredMsg),
   search: z.string().min(1, requiredMsg),
-  mvpFeatures: z.string().optional(), // Останнє поле кроку 3 - тепер необов'язкове
+  mvpFeatures: z.string().min(1, requiredMsg), // Тепер обов'язкове
+  excludedFeatures: z.string().optional(), // Нове поле, останнє в кроці 3 - необов'язкове
 
   // Step 4: Design
   designStyle: z.string().min(1, requiredMsg),
@@ -40,7 +41,7 @@ export const briefSchema = z.object({
   colors: z.string().min(1, requiredMsg),
   designAttention: z.string().min(1, requiredMsg),
   designRestrictions: z.string().min(1, requiredMsg),
-  dislikedDesign: z.string().optional(), // Останнє поле кроку 4 - тепер необов'язкове
+  dislikedDesign: z.string().optional(),
 
   // Step 5: Constraints
   budget: z.string().min(1, requiredMsg),
@@ -48,10 +49,10 @@ export const briefSchema = z.object({
   priority: z.string().min(1, requiredMsg),
   fixedDeadlines: z.string().min(1, requiredMsg),
   stagedExecution: z.string().min(1, requiredMsg),
-  additionalConstraints: z.string().optional(), // Останнє поле кроку 5 - тепер необов'язкове
+  additionalConstraints: z.string().optional(),
 
   // Step 6: Additional
-  comments: z.string().optional(), // Останнє поле кроку 6 - тепер необов'язкове
+  comments: z.string().optional(),
   
   // Existing fields
   projectType: z.string().optional(),
@@ -65,7 +66,7 @@ export type BriefFormData = z.infer<typeof briefSchema>;
 export const requiredFieldsByStep: Record<number, (keyof BriefFormData)[]> = {
   1: ["companyName", "contactName", "phone", "email", "contactMethod"],
   2: ["features", "problem", "goal", "valueProposition", "targetAudience", "uniqueness", "competitors", "existingWork", "references"],
-  3: ["functionalModules", "authSystem", "adminPanel", "integrations", "automation", "notifications", "search"],
+  3: ["functionalModules", "authSystem", "adminPanel", "integrations", "automation", "notifications", "search", "mvpFeatures"],
   4: ["designStyle", "brandStyle", "colors", "designAttention", "designRestrictions"],
   5: ["budget", "deadline", "priority", "fixedDeadlines", "stagedExecution"],
   6: [],
@@ -74,7 +75,7 @@ export const requiredFieldsByStep: Record<number, (keyof BriefFormData)[]> = {
 export const stepFieldOrder: Record<number, string[]> = {
   1: ["companyName", "contactName", "phone", "email", "contactMethod", "messenger", "contactTime"],
   2: ["features", "problem", "goal", "valueProposition", "targetAudience", "uniqueness", "competitors", "existingWork", "references", "expectations"],
-  3: ["functionalModules", "authSystem", "adminPanel", "integrations", "automation", "notifications", "search", "mvpFeatures"],
+  3: ["functionalModules", "authSystem", "adminPanel", "integrations", "automation", "notifications", "search", "mvpFeatures", "excludedFeatures"],
   4: ["designStyle", "brandStyle", "colors", "designAttention", "designRestrictions", "dislikedDesign"],
   5: ["budget", "deadline", "priority", "fixedDeadlines", "stagedExecution", "additionalConstraints"],
   6: ["comments"],
@@ -99,6 +100,7 @@ export const allFieldLabels: Record<string, string> = {
   notifications: "Сповіщення",
   search: "Пошук та фільтри",
   mvpFeatures: "Критичні функції MVP",
+  excludedFeatures: "Функції, що НЕ входять у проєкт",
   valueProposition: "Унікальна пропозиція",
   targetAudience: "Цільова аудиторія",
   uniqueness: "Унікальність продукту",
