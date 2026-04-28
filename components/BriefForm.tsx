@@ -122,22 +122,12 @@ export default function BriefForm() {
 
   const handleNext = async () => {
     const stepFields = requiredFieldsByStep[currentStep] || [];
-    
-    const result = await briefSchema.safeParse(watchedValues);
-    if (!result.success) {
-      const fieldErrors = result.error.flatten().fieldErrors;
-      Object.keys(fieldErrors).forEach(field => {
-        setValue(field as keyof BriefFormData, watchedValues[field as keyof typeof watchedValues] || "");
-      });
-    }
-    
     const isValid = await trigger(stepFields as any);
     
     if (!isValid) {
       return;
     }
-    const maxCompletedStep = Math.min(currentStep + 1, steps.length);
-    setCurrentStep(maxCompletedStep);
+    setCurrentStep((prev) => Math.min(prev + 1, steps.length));
   };
 
   const handlePrev = () => {
@@ -477,23 +467,33 @@ export default function BriefForm() {
             </div>
 
             <div>
-              <label className={labelClass}>Чи є у вас вже щось готове?</label>
+              <label className={labelClass}>Чи є у вас вже щось готове? <span className="text-red-500">*</span></label>
               <textarea
                 {...register("existingWork")}
                 rows={3}
                 placeholder="Ідея, прототип, дизайн, готовий продукт або нічого"
-                className={`${inputClass} min-h-[100px] resize-vertical`}
+                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[100px] resize-vertical ${
+                  errors.existingWork ? "border-red-500" : "border-gray-200"
+                }`}
               />
+              {errors.existingWork && (
+                <p className="text-red-500 text-sm mt-1">{errors.existingWork.message as string}</p>
+              )}
             </div>
 
             <div>
-              <label className={labelClass}>Посилання на приклади (референси)</label>
+              <label className={labelClass}>Посилання на приклади (референси) <span className="text-red-500">*</span></label>
               <textarea
                 {...register("references")}
                 rows={3}
                 placeholder="Сайти або додатки, які вам подобаються (і чому)"
-                className={`${inputClass} min-h-[100px] resize-vertical`}
+                className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 min-h-[100px] resize-vertical ${
+                  errors.references ? "border-red-500" : "border-gray-200"
+                }`}
               />
+              {errors.references && (
+                <p className="text-red-500 text-sm mt-1">{errors.references.message as string}</p>
+              )}
             </div>
 
             <div>
