@@ -6,7 +6,7 @@ export const briefSchema = z.object({
   phone: z.string().min(1, "Обов'язкове поле"),
   email: z.string().min(1, "Обов'язкове поле").email("Невірний email"),
   contactMethod: z.string().min(1, "Обов'язкове поле"),
-  messenger: z.string().min(1, "Обов'язкове поле"),
+  messenger: z.string().optional(),
   contactTime: z.string().min(1, "Обов'язкове поле"),
   projectType: z.string().optional(),
   goal: z.string().min(1, "Обов'язкове поле"),
@@ -37,21 +37,21 @@ export const briefUpdateSchema = briefSchema.partial();
 export type BriefUpdateData = z.infer<typeof briefUpdateSchema>;
 
 export const requiredFieldsByStep: Record<number, (keyof BriefFormData)[]> = {
-  1: ["companyName", "contactName", "phone", "email", "contactMethod", "messenger", "contactTime"],
-  2: ["features", "problem", "goal"],
+  1: ["companyName", "contactName", "phone", "email", "contactMethod", "contactTime"],
+  2: ["features", "problem", "goal", "valueProposition", "targetAudience", "uniqueness", "competitors", "existingWork", "references"],
   3: ["functionalModules"],
-  4: ["valueProposition", "targetAudience", "uniqueness", "competitors", "existingWork", "references", "designStyle"],
+  4: ["designStyle"],
   5: ["budget", "deadline", "priority"],
-  6: ["expectations", "comments"],
+  6: ["comments"],
 };
 
 export const stepFieldOrder: Record<number, string[]> = {
   1: ["companyName", "contactName", "phone", "email", "contactMethod", "messenger", "contactTime"],
-  2: ["features", "problem", "goal"],
+  2: ["features", "problem", "goal", "valueProposition", "targetAudience", "uniqueness", "competitors", "existingWork", "references", "expectations"],
   3: ["functionalModules"],
-  4: ["valueProposition", "targetAudience", "uniqueness", "competitors", "existingWork", "references", "designStyle"],
+  4: ["designStyle"],
   5: ["budget", "deadline", "priority"],
-  6: ["expectations", "comments"],
+  6: ["comments"],
 };
 
 export const allFieldLabels: Record<string, string> = {
