@@ -600,7 +600,6 @@ export default function BriefForm() {
                 <p className="text-red-500 text-sm mt-1">{errors.designStyle.message as string}</p>
               )}
             </div>
-            </div>
 
             <div>
               <label className={labelClass}>Чи є у вас фірмовий стиль або брендбук?</label>
