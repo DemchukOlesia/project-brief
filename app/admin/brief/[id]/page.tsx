@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { requiredFieldsByStep, stepFieldOrder, allFieldLabels } from "@/lib/validation";
+import { stepFieldOrder, allFieldLabels } from "@/lib/validation";
 
 interface Brief {
   id: string;
@@ -11,7 +11,7 @@ interface Brief {
   phone: string;
   email: string;
   status: string;
-  data: any; // Всі відповіді тут
+  data: any;
   createdAt: string;
 }
 
@@ -32,15 +32,23 @@ export default function BriefDetailPage() {
   const [brief, setBrief] = useState<Brief | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState<any>({});
+  const [isSaving, setIsSaving] = useState(false);
 
   const fetchBrief = useCallback(async () => {
     try {
       const response = await fetch(`/api/brief/${params.id}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch brief");
-      }
+      if (!response.ok) throw new Error("Failed to fetch brief");
       const data = await response.json();
       setBrief(data);
+      
+      // Підготовка даних для редагування
+      const combined = {
+        ...data,
+        ...(typeof data.data === "object" ? data.data : {}),
+      };
+      setEditData(combined);
     } catch (err) {
       setError("Бриф не знайдено");
       console.error(err);
@@ -67,6 +75,40 @@ export default function BriefDetailPage() {
     }
   };
 
+  const handleSave = async () => {
+    if (!brief) return;
+    setIsSaving(true);
+    try {
+      // Розділяємо дані на топ-рівень та об'єкт data
+      const { id, status, createdAt, updatedAt, ...rest } = editData;
+      
+      const payload = {
+        companyName: rest.companyName,
+        contactName: rest.contactName,
+        email: rest.email,
+        phone: rest.phone,
+        data: rest, // Зберігаємо все інше в JSON
+      };
+
+      const response = await fetch(`/api/brief/${brief.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) throw new Error("Failed to save");
+      
+      const updatedBrief = await response.json();
+      setBrief(updatedBrief);
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error saving brief:", error);
+      alert("Не вдалося зберегти зміни");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -79,33 +121,58 @@ export default function BriefDetailPage() {
     return (
       <div className="text-center py-12">
         <p className="text-red-500 mb-4">{error || "Бриф не знайдено"}</p>
-        <button
-          onClick={() => router.push("/admin")}
-          className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
-        >
+        <button onClick={() => router.push("/admin")} className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700">
           Назад до списку
         </button>
       </div>
     );
   }
 
-  // Об'єднуємо дані з топ-рівня та з об'єкта data для зручності
-  const fullData = {
+  const currentData = isEditing ? editData : {
     ...brief,
     ...(typeof brief.data === "object" ? brief.data : {}),
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <button
-        onClick={() => router.push("/admin")}
-        className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors group"
-      >
-        <svg className="w-5 h-5 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
-        Назад до списку
-      </button>
+    <div className="max-w-4xl mx-auto pb-20">
+      <div className="flex items-center justify-between mb-6">
+        <button onClick={() => router.push("/admin")} className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors group">
+          <svg className="w-5 h-5 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Назад до списку
+        </button>
+        
+        <div className="flex gap-3">
+          {!isEditing ? (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all flex items-center gap-2 shadow-lg shadow-blue-600/20"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Редагувати
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={() => { setIsEditing(false); setEditData({ ...brief, ...(typeof brief.data === "object" ? brief.data : {}) }); }}
+                className="px-6 py-2 border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition-all"
+              >
+                Скасувати
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-green-600/20"
+              >
+                {isSaving ? "Збереження..." : "Зберегти"}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
 
       <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-8 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -120,9 +187,7 @@ export default function BriefDetailPage() {
                 {brief.status === "completed" ? "Завершено" : brief.status === "in_progress" ? "В роботі" : "Новий"}
               </span>
             </div>
-            <p className="text-gray-500 text-sm">
-              Створено: {new Date(brief.createdAt).toLocaleString("uk-UA")}
-            </p>
+            <p className="text-gray-500 text-sm">Створено: {new Date(brief.createdAt).toLocaleString("uk-UA")}</p>
           </div>
           
           <div className="flex items-center gap-3">
@@ -130,7 +195,7 @@ export default function BriefDetailPage() {
             <select
               value={brief.status || "new"}
               onChange={(e) => updateStatus(e.target.value)}
-              className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-2.5 transition-all cursor-pointer"
+              className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-2.5 cursor-pointer"
             >
               <option value="new">Новий</option>
               <option value="in_progress">В роботі</option>
@@ -149,17 +214,25 @@ export default function BriefDetailPage() {
             <div className="p-6">
               <div className="grid gap-6">
                 {data.fields.map((field) => {
-                  const value = fullData[field];
-                  if (value === undefined || value === null || value === "") return null;
+                  const value = currentData[field];
                   
                   return (
                     <div key={field} className="border-b border-gray-50 last:border-0 pb-4 last:pb-0">
                       <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
                         {fieldLabels[field] || field}
                       </label>
-                      <div className="text-gray-900 whitespace-pre-wrap leading-relaxed">
-                        {typeof value === "boolean" ? (value ? "Так" : "Ні") : value}
-                      </div>
+                      {isEditing ? (
+                        <textarea
+                          value={value || ""}
+                          onChange={(e) => setEditData({ ...editData, [field]: e.target.value })}
+                          rows={3}
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 text-gray-900 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                        />
+                      ) : (
+                        <div className="text-gray-900 whitespace-pre-wrap leading-relaxed">
+                          {value || <span className="text-gray-300 italic">Не вказано</span>}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
