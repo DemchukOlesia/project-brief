@@ -122,6 +122,15 @@ export default function BriefForm() {
 
   const handleNext = async () => {
     const stepFields = requiredFieldsByStep[currentStep] || [];
+    
+    const result = await briefSchema.safeParse(watchedValues);
+    if (!result.success) {
+      const fieldErrors = result.error.flatten().fieldErrors;
+      Object.keys(fieldErrors).forEach(field => {
+        setValue(field as keyof BriefFormData, watchedValues[field as keyof typeof watchedValues] || "");
+      });
+    }
+    
     const isValid = await trigger(stepFields as any);
     
     if (!isValid) {
@@ -323,24 +332,34 @@ export default function BriefForm() {
                 )}
               </div>
               <div>
-                <label className={labelClass}>Зручний час для зв&apos;язку</label>
+                <label className={labelClass}>Зручний час для зв&apos;язку <span className="text-red-500">*</span></label>
                 <input
                   {...register("contactTime")}
                   placeholder="Наприклад: 10:00–18:00"
-                  className={inputClass}
+                  className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
+                    errors.contactTime ? "border-red-500" : "border-gray-200"
+                  }`}
                 />
+                {errors.contactTime && (
+                  <p className="text-red-500 text-sm mt-1">{errors.contactTime.message as string}</p>
+                )}
               </div>
               {showMessengerField && (
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <label className={labelClass}>
-                      Контакт у {watchedContactMethod === "telegram" ? "Telegram" : "Viber"}
+                      Контакт у {watchedContactMethod === "telegram" ? "Telegram" : "Viber"} <span className="text-red-500">*</span>
                     </label>
                     <input
                       {...register("messenger")}
                       placeholder={watchedContactMethod === "telegram" ? "@username" : "+380XXXXXXXXX"}
-                      className={inputClass}
+                      className={`w-full px-4 py-3 border rounded-xl bg-white text-gray-900 text-base placeholder:text-gray-400 placeholder:text-sm placeholder:font-normal focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
+                        errors.messenger ? "border-red-500" : "border-gray-200"
+                      }`}
                     />
+                    {errors.messenger && (
+                      <p className="text-red-500 text-sm mt-1">{errors.messenger.message as string}</p>
+                    )}
                   </div>
                 </div>
               )}

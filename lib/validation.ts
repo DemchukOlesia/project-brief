@@ -37,11 +37,11 @@ export const briefUpdateSchema = briefSchema.partial();
 export type BriefUpdateData = z.infer<typeof briefUpdateSchema>;
 
 export const requiredFieldsByStep: Record<number, (keyof BriefFormData)[]> = {
-  1: ["companyName", "contactName", "phone", "email", "contactMethod"],
+  1: ["companyName", "contactName", "phone", "email", "contactMethod", "messenger", "contactTime"],
   2: ["goal", "problem"],
   3: ["functionalModules"],
   4: ["valueProposition", "targetAudience", "uniqueness", "competitors"],
-  5: ["budget", "deadline", "priority"],
+  5: ["budget", "deadline"],
   6: [],
 };
 
