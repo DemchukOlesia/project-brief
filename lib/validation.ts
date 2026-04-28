@@ -32,8 +32,8 @@ export const briefSchema = z.object({
   automation: z.string().min(1, requiredMsg),
   notifications: z.string().min(1, requiredMsg),
   search: z.string().min(1, requiredMsg),
-  mvpFeatures: z.string().min(1, requiredMsg), // Тепер обов'язкове
-  excludedFeatures: z.string().optional(), // Нове поле, останнє в кроці 3 - необов'язкове
+  mvpFeatures: z.string().min(1, requiredMsg),
+  excludedFeatures: z.string().min(1, requiredMsg), // Тепер обов'язкове
 
   // Step 4: Design
   designStyle: z.string().min(1, requiredMsg),
@@ -66,7 +66,7 @@ export type BriefFormData = z.infer<typeof briefSchema>;
 export const requiredFieldsByStep: Record<number, (keyof BriefFormData)[]> = {
   1: ["companyName", "contactName", "phone", "email", "contactMethod"],
   2: ["features", "problem", "goal", "valueProposition", "targetAudience", "uniqueness", "competitors", "existingWork", "references"],
-  3: ["functionalModules", "authSystem", "adminPanel", "integrations", "automation", "notifications", "search", "mvpFeatures"],
+  3: ["functionalModules", "authSystem", "adminPanel", "integrations", "automation", "notifications", "search", "mvpFeatures", "excludedFeatures"],
   4: ["designStyle", "brandStyle", "colors", "designAttention", "designRestrictions"],
   5: ["budget", "deadline", "priority", "fixedDeadlines", "stagedExecution"],
   6: [],

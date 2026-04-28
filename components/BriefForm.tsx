@@ -352,7 +352,7 @@ export default function BriefForm() {
               { id: "notifications", label: "Система сповіщень", req: true },
               { id: "search", label: "Пошук та фільтрація", req: true },
               { id: "mvpFeatures", label: "Критично важливий функціонал (MVP)", req: true },
-              { id: "excludedFeatures", label: "Які функції НЕ входять у цей проєкт?", req: false },
+              { id: "excludedFeatures", label: "Які функції НЕ входять у цей проєкт?", req: true },
             ].map((field) => (
               <div key={field.id}>
                 <label className={labelClass}>{field.label} {field.req && <span className="text-red-500">*</span>}</label>
